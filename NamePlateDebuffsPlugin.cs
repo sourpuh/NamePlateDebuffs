@@ -2,14 +2,11 @@
 using Dalamud.Plugin;
 using Lumina.Excel.GeneratedSheets;
 using NamePlateDebuffs.StatusNode;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Dalamud.Data;
 using Dalamud.Game;
 using Dalamud.Game.ClientState;
+using Dalamud.IoC;
 using Dalamud.Logging;
 
 namespace NamePlateDebuffs
@@ -18,9 +15,18 @@ namespace NamePlateDebuffs
     {
         public string Name => "NamePlateDebuffs";
 
-        public ClientState ClientState { get; private set; } = null!;
-        public static CommandManager CommandManager { get; private set; } = null!;
+        [PluginService]
+        [RequiredVersion("1.0")]
         public DalamudPluginInterface Interface { get; private set; } = null!;
+
+        [PluginService]
+        [RequiredVersion("1.0")]
+        public ClientState ClientState { get; private set; } = null!;
+
+        [PluginService]
+        [RequiredVersion("1.0")]
+        public static CommandManager CommandManager { get; private set; } = null!;
+
         public DataManager DataManager { get; private set; } = null!;
         public Framework Framework { get; private set; } = null!;
         public PluginAddressResolver Address { get; private set; } = null!;

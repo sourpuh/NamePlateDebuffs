@@ -7,6 +7,7 @@
     <Company>-</Company>
     <Description>Dalamud plugin that shows debuffs on NamePlates.</Description>
     <PackageProjectUrl>https://github.com/aers/NamePlateDebuffs</PackageProjectUrl>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -33,6 +34,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -42,13 +53,21 @@
     <WarningLevel>4</WarningLevel> 
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
   <PropertyGroup>
-    <DalamudLibPath>F:\xiv-dev\repos\Dalamud\bin\$(Configuration)\</DalamudLibPath>
-    <ClientStructsLibPath>F:\xiv-dev\repos\FFXIVClientStructs\bin\$(Configuration)\</ClientStructsLibPath>
+    <DalamudLibPath>E:\Development\Dalamud\bin\$(Configuration)\</DalamudLibPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DalamudPackager" Version="2.1.2" />
+    <PackageReference Include="DalamudPackager" Version="2.1.5" />
     <PackageReference Include="ILRepack" Version="2.0.18" />
   </ItemGroup>
 
@@ -70,7 +89,7 @@
       <Private>False</Private>
     </Reference>
 	<Reference Include="FFXIVClientStructs">
-      <HintPath>$(ClientStructsLibPath)FFXIVClientStructs.dll</HintPath>
+      <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
     </Reference>
   </ItemGroup>
 
