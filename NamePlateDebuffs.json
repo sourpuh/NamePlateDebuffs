@@ -1,6 +1,6 @@
 {
     "Name": "NamePlateDebuffs",
-    "Author": "aers",
+    "Author": "aers, JHerig",
     "Description": "Displays your debuffs on enemy nameplates.",
-    "RepoUrl": "https://github.com/aers/NamePlateDebuffs"
+    "RepoUrl": "https://github.com/jherig/NamePlateDebuffs"
 }

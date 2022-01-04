@@ -2,11 +2,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>NamePlateDebuffs</PackageId>
-    <Version>0.5.0.0</Version>
-    <Authors>aers</Authors>
+    <Version>0.5.1.0</Version>
+    <Authors>aers, JHerig</Authors>
     <Company>-</Company>
-    <Description>Dalamud plugin that shows debuffs on NamePlates.</Description>
-    <PackageProjectUrl>https://github.com/aers/NamePlateDebuffs</PackageProjectUrl>
+    <Description>Dalamud plugin that shows debuffs on enemy NamePlates</Description>
+    <PackageProjectUrl>https://github.com/jherig/NamePlateDebuffs</PackageProjectUrl>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
@@ -64,6 +64,8 @@
 
   <PropertyGroup>
     <DalamudLibPath>E:\Development\Dalamud\bin\$(Configuration)\</DalamudLibPath>
+    <AssemblyVersion>0.5.1.0</AssemblyVersion>
+    <FileVersion>0.5.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
