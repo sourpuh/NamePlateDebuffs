@@ -12,10 +12,11 @@ namespace NamePlateDebuffs
     [Serializable]
     public class NamePlateDebuffsPluginConfig : IPluginConfiguration
     {
-        public int Version { get; set; } = 0;
+        public int Version { get; set; } = 1;
 
         // General
         public bool Enabled = true;
+        public bool PlayerDebuffs = false;
         public int UpdateInterval = 100;
 
         // NodeGroup
@@ -41,6 +42,7 @@ namespace NamePlateDebuffs
         {
             // General
             Enabled = true;
+            PlayerDebuffs = false;
             UpdateInterval = 100;
 
             // NodeGroup

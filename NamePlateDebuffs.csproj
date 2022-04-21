@@ -69,7 +69,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DalamudPackager" Version="2.1.5" />
+    <PackageReference Include="DalamudPackager" Version="2.1.7" />
     <PackageReference Include="ILRepack" Version="2.0.18" />
   </ItemGroup>
 

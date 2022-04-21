@@ -61,8 +61,8 @@ namespace NamePlateDebuffs.StatusNode
             DurationNode->AtkResNode.SetWidth((ushort)(outWidth + 2 * _plugin.Config.DurationPadding));
             DurationNode->AtkResNode.SetHeight((ushort)(outHeight + 2 * _plugin.Config.DurationPadding));
 
-            var iconHeight = (ushort)(_plugin.Config.IconY + _plugin.Config.IconHeight);
-            var durationHeight = (ushort)(_plugin.Config.DurationY + DurationNode->AtkResNode.Height);
+            ushort iconHeight = (ushort)(_plugin.Config.IconY + _plugin.Config.IconHeight);
+            ushort durationHeight = (ushort)(_plugin.Config.DurationY + DurationNode->AtkResNode.Height);
 
             RootNode->SetHeight(durationHeight > iconHeight ? durationHeight : iconHeight);
             RootNode->SetWidth((ushort)(DurationNode->AtkResNode.Width > _plugin.Config.IconWidth ? DurationNode->AtkResNode.Width : _plugin.Config.IconWidth));

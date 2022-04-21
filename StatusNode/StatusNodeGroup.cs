@@ -27,7 +27,7 @@ namespace NamePlateDebuffs.StatusNode
         public bool Built()
         {
             if (RootNode == null) return false;
-            foreach (var node in StatusNodes)
+            foreach (StatusNode node in StatusNodes)
                 if (!node.Built()) return false;
 
             return true;
@@ -73,7 +73,7 @@ namespace NamePlateDebuffs.StatusNode
 
         public void DestroyNodes()
         {
-            foreach(var node in StatusNodes)
+            foreach(StatusNode node in StatusNodes)
             {
                 node.DestroyNodes();
             }
@@ -86,7 +86,7 @@ namespace NamePlateDebuffs.StatusNode
 
         public void ForEachNode(Action<StatusNode> func)
         {
-            foreach (var node in StatusNodes)
+            foreach (StatusNode node in StatusNodes)
                 if (node != null)
                     func(node);
         }
@@ -139,7 +139,7 @@ namespace NamePlateDebuffs.StatusNode
 
         public void SetupVisibility()
         {
-            foreach(var node in StatusNodes)
+            foreach(StatusNode node in StatusNodes)
             {
                 node.IconNode->AtkResNode.ToggleVisibility(true);
                 node.DurationNode->AtkResNode.ToggleVisibility(true);

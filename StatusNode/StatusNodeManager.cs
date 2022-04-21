@@ -6,12 +6,6 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NamePlateDebuffs.StatusNode
 {
@@ -51,53 +45,46 @@ namespace NamePlateDebuffs.StatusNode
 
         public void ForEachGroup(Action<StatusNodeGroup> func)
         {
-            foreach(var group in NodeGroups)
+            foreach(StatusNodeGroup group in NodeGroups)
                 if (group != null)
                     func(group);
         }
 
         public void ForEachNode(Action<StatusNode> func)
         {
-            foreach (var group in NodeGroups)
-                if (group != null)
-                    group.ForEachNode(func);
+            foreach (StatusNodeGroup group in NodeGroups)
+                group?.ForEachNode(func);
         }
 
         public void SetGroupVisibility(int index, bool enable, bool setChildren = false)
         {
-            var group = NodeGroups[index];
+            StatusNodeGroup group = NodeGroups[index];
 
-            if (group == null)
-                return;
-
-            group.SetVisibility(enable, setChildren);
+            group?.SetVisibility(enable, setChildren);
         }
 
         public void SetStatus(int groupIndex, int statusIndex, int id, int timer)
         {
-            var group = NodeGroups[groupIndex];
+            Status row = StatusSheet.GetRow((uint) id);
 
-            if (group == null)
+            if (row == null)
                 return;
 
-            var row = StatusSheet.GetRow((uint) id);
-            
-            group.SetStatus(statusIndex, row.Icon, timer);
+            StatusNodeGroup group = NodeGroups[groupIndex];
+
+            group?.SetStatus(statusIndex, row.Icon, timer);
         }
 
         public void HideUnusedStatus(int groupIndex, int statusCount)
         {
-            var group = NodeGroups[groupIndex];
+            StatusNodeGroup group = NodeGroups[groupIndex];
 
-            if (group == null)
-                return;
-
-            group.HideUnusedStatus(statusCount);
+            group?.HideUnusedStatus(statusCount);
         }
 
         public void SetDepthPriority(int groupIndex, bool enable)
         {
-            var group = NodeGroups[groupIndex];
+            StatusNodeGroup group = NodeGroups[groupIndex];
 
             if (group == null)
                 return;
@@ -126,7 +113,7 @@ namespace NamePlateDebuffs.StatusNode
  
             for(byte i = 0; i < NamePlateCount; i++)
             {
-                var nodeGroup = new StatusNodeGroup(_plugin);
+                StatusNodeGroup nodeGroup = new StatusNodeGroup(_plugin);
                 var npObj = &namePlateAddon->NamePlateObjectArray[i];
                 if (!nodeGroup.BuildNodes(StartingNodeId))
                 {

@@ -90,7 +90,7 @@ namespace NamePlateDebuffs
         {
             try
             {
-                var territory = DataManager.GetExcelSheet<TerritoryType>()?.GetRow(e);
+                TerritoryType territory = DataManager.GetExcelSheet<TerritoryType>()?.GetRow(e);
                 if (territory != null) InPvp = territory.IsPvpZone;
             }
             catch (KeyNotFoundException)
