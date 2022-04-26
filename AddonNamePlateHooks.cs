@@ -5,61 +5,57 @@ using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NamePlateDebuffs
 {
     public unsafe class AddonNamePlateHooks : IDisposable
     {
-        private NamePlateDebuffsPlugin _plugin;
+        private readonly NamePlateDebuffsPlugin _plugin;
 
         private delegate void AddonNamePlateFinalizePrototype(AddonNamePlate* thisPtr);
-        private Hook<AddonNamePlateFinalizePrototype> hookAddonNamePlateFinalize;
+        private Hook<AddonNamePlateFinalizePrototype> _hookAddonNamePlateFinalize;
 
         private delegate void AddonNamePlateDrawPrototype(AddonNamePlate* thisPtr);
-        private Hook<AddonNamePlateDrawPrototype> hookAddonNamePlateDraw;
+        private Hook<AddonNamePlateDrawPrototype> _hookAddonNamePlateDraw;
 
-        private Stopwatch Timer;
-        private long Elapsed;
+        private readonly Stopwatch _timer;
+        private long _elapsed;
 
-        private UI3DModule.ObjectInfo* LastTarget;
+        private UI3DModule.ObjectInfo* _lastTarget;
 
         public AddonNamePlateHooks(NamePlateDebuffsPlugin p)
         {
             _plugin = p;
 
-            Timer = new Stopwatch();
-            Elapsed = 0;
+            _timer = new Stopwatch();
+            _elapsed = 0;
         }
 
         public void Initialize()
         {
-            hookAddonNamePlateFinalize = new Hook<AddonNamePlateFinalizePrototype>(_plugin.Address.AddonNamePlateFinalizeAddress, AddonNamePlateFinalizeDetour);
-            hookAddonNamePlateDraw = new Hook<AddonNamePlateDrawPrototype>(_plugin.Address.AddonNamePlateDrawAddress, AddonNamePlateDrawDetour);
+            _hookAddonNamePlateFinalize = new Hook<AddonNamePlateFinalizePrototype>(_plugin.Address.AddonNamePlateFinalizeAddress, AddonNamePlateFinalizeDetour);
+            _hookAddonNamePlateDraw = new Hook<AddonNamePlateDrawPrototype>(_plugin.Address.AddonNamePlateDrawAddress, AddonNamePlateDrawDetour);
 
-            hookAddonNamePlateFinalize.Enable();
-            hookAddonNamePlateDraw.Enable();
+            _hookAddonNamePlateFinalize.Enable();
+            _hookAddonNamePlateDraw.Enable();
         }
 
         public void Dispose()
         {
-            hookAddonNamePlateFinalize.Dispose();
-            hookAddonNamePlateDraw.Dispose();
+            _hookAddonNamePlateFinalize.Dispose();
+            _hookAddonNamePlateDraw.Dispose();
         }
 
         public void AddonNamePlateDrawDetour(AddonNamePlate* thisPtr)
         {
             if (!_plugin.Config.Enabled || _plugin.InPvp)
             {
-                if (Timer.IsRunning)
+                if (_timer.IsRunning)
                 {
-                    Timer.Stop();
-                    Timer.Reset();
-                    Elapsed = 0;
+                    _timer.Stop();
+                    _timer.Reset();
+                    _elapsed = 0;
                 }
 
                 if (_plugin.StatusNodeManager.Built)
@@ -68,14 +64,14 @@ namespace NamePlateDebuffs
                     _plugin.StatusNodeManager.SetNamePlateAddonPointer(null);
                 }
 
-                hookAddonNamePlateDraw.Original(thisPtr);
+                _hookAddonNamePlateDraw.Original(thisPtr);
                 return;
             }
 
-            Elapsed += Timer.ElapsedMilliseconds;
-            Timer.Restart();
+            _elapsed += _timer.ElapsedMilliseconds;
+            _timer.Restart();
 
-            if (Elapsed >= _plugin.Config.UpdateInterval)
+            if (_elapsed >= _plugin.Config.UpdateInterval)
             {
                 if (!_plugin.StatusNodeManager.Built)
                 {
@@ -132,26 +128,26 @@ namespace NamePlateDebuffs
                         _plugin.StatusNodeManager.HideUnusedStatus(objectInfo->NamePlateIndex, count);
                     }
 
-                    if (objectInfo == ui3DModule->TargetObjectInfo && objectInfo != LastTarget)
+                    if (objectInfo == ui3DModule->TargetObjectInfo && objectInfo != _lastTarget)
                     {
                         _plugin.StatusNodeManager.SetDepthPriority(objectInfo->NamePlateIndex, false);
-                        if (LastTarget != null)
-                            _plugin.StatusNodeManager.SetDepthPriority(LastTarget->NamePlateIndex, true);
-                        LastTarget = objectInfo;
+                        if (_lastTarget != null)
+                            _plugin.StatusNodeManager.SetDepthPriority(_lastTarget->NamePlateIndex, true);
+                        _lastTarget = objectInfo;
                     }
                 }
 
-                Elapsed = 0;
+                _elapsed = 0;
             }
 
-            hookAddonNamePlateDraw.Original(thisPtr);
+            _hookAddonNamePlateDraw.Original(thisPtr);
         }
 
         public void AddonNamePlateFinalizeDetour(AddonNamePlate* thisPtr)
         {
             _plugin.StatusNodeManager.DestroyNodes();
             _plugin.StatusNodeManager.SetNamePlateAddonPointer(null);
-            hookAddonNamePlateFinalize.Original(thisPtr);
+            _hookAddonNamePlateFinalize.Original(thisPtr);
         }
     }
 }
