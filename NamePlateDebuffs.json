@@ -1,6 +1,8 @@
 {
     "Name": "NamePlateDebuffs",
+    "InternalName": "NamePlateDebuffs",
     "Author": "aers, JHerig",
+    "DalamudApiLevel": 7,
     "Description": "Displays your debuffs on enemy nameplates.",
     "RepoUrl": "https://github.com/jherig/NamePlateDebuffs",
     "Punchline": "Displays debuffs you cast on nameplates of enemies"
