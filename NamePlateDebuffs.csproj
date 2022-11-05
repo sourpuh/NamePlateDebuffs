@@ -3,7 +3,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>NamePlateDebuffs</PackageId>
-    <Version>1.2.3.4</Version> <!-- Temporary version number -->
+    <Version>1.0.0.0</Version>
     <Authors>aers, JHerig</Authors>
     <PackageProjectUrl>https://github.com/jherig/NamePlateDebuffs</PackageProjectUrl>
   </PropertyGroup>
