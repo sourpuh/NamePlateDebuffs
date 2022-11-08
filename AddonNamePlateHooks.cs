@@ -86,13 +86,21 @@ namespace NamePlateDebuffs
                 for (int i = 0; i < ui3DModule->NamePlateObjectInfoCount; i++)
                 {
                     var objectInfo = ((UI3DModule.ObjectInfo**)ui3DModule->NamePlateObjectInfoPointerArray)[i];
+
+                    // As of at least 6.28 this field has the same value as NamePlateObjectKind: 
+                    //var npIndex = objectInfo->NamePlateIndex;
+
+                    // Temporary work around until Dalamud 7.2.0 is pushed to xl, see https://github.com/goatcorp/Dalamud/commit/a173c5dac54fa4b55f5c5066bdcd93cbbcd74ed9
+                    //var npIndex = objectInfo->Unk_4F;
+                    var npIndex = *(&objectInfo->NamePlateObjectKind + 2); // Same as Unk_4F, but after 7.2.0 the Unk_4F field will be going away
+                    
                     if (objectInfo->NamePlateObjectKind != 3)
                     {
-                        _plugin.StatusNodeManager.SetGroupVisibility(objectInfo->NamePlateIndex, false, true);
+                        _plugin.StatusNodeManager.SetGroupVisibility(npIndex, false, true);
                         continue;
                     }
 
-                    _plugin.StatusNodeManager.SetGroupVisibility(objectInfo->NamePlateIndex, true, false);
+                    _plugin.StatusNodeManager.SetGroupVisibility(npIndex, true, false);
 
                     if (_plugin.UI.IsConfigOpen)
                     {
@@ -103,7 +111,7 @@ namespace NamePlateDebuffs
                         uint? localPlayerId = _plugin.ClientState.LocalPlayer?.ObjectId;
                         if (localPlayerId is null)
                         {
-                            _plugin.StatusNodeManager.HideUnusedStatus(objectInfo->NamePlateIndex, 0);
+                            _plugin.StatusNodeManager.HideUnusedStatus(npIndex, 0);
                             continue;
                         }
                         StatusManager targetStatus = ((BattleChara*)objectInfo->GameObject)->StatusManager;
@@ -118,19 +126,19 @@ namespace NamePlateDebuffs
                             if (status.StatusID == 0) continue;
                             if (status.SourceID != localPlayerId) continue;
 
-                            _plugin.StatusNodeManager.SetStatus(objectInfo->NamePlateIndex, count, status.StatusID, (int)status.RemainingTime);
+                            _plugin.StatusNodeManager.SetStatus(npIndex, count, status.StatusID, (int)status.RemainingTime);
                             count++;
 
                             if (count == 4)
                                 break;
                         }
 
-                        _plugin.StatusNodeManager.HideUnusedStatus(objectInfo->NamePlateIndex, count);
+                        _plugin.StatusNodeManager.HideUnusedStatus(npIndex, count);
                     }
 
                     if (objectInfo == ui3DModule->TargetObjectInfo && objectInfo != _lastTarget)
                     {
-                        _plugin.StatusNodeManager.SetDepthPriority(objectInfo->NamePlateIndex, false);
+                        _plugin.StatusNodeManager.SetDepthPriority(npIndex, false);
                         if (_lastTarget != null)
                             _plugin.StatusNodeManager.SetDepthPriority(_lastTarget->NamePlateIndex, true);
                         _lastTarget = objectInfo;
