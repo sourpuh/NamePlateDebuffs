@@ -56,8 +56,10 @@ namespace NamePlateDebuffs
 
             Config = pluginInterface.GetPluginConfig() as NamePlateDebuffsPluginConfig ?? new NamePlateDebuffsPluginConfig();
             Config.Initialize(pluginInterface);
-
-            if (!FFXIVClientStructs.Resolver.Initialized) FFXIVClientStructs.Resolver.Initialize(sigScanner.SearchBase);
+            
+            var resolver = FFXIVClientStructs.Interop.Resolver.GetInstance;
+            resolver.SetupSearchSpace(sigScanner.SearchBase);
+            resolver.Resolve();
 
             Address = new PluginAddressResolver();
             Address.Setup();
