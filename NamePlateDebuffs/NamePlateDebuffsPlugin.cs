@@ -31,7 +31,6 @@ namespace NamePlateDebuffs
         public Framework Framework { get; private set; } = null!;
         public PluginAddressResolver Address { get; private set; } = null!;
         public StatusNodeManager StatusNodeManager { get; private set; } = null!;
-        public static SigScanner SigScanner { get; private set; } = null!;
         public static AddonNamePlateHooks Hooks { get; private set; } = null!;
         public NamePlateDebuffsPluginUI UI { get; private set; } = null!;
         public NamePlateDebuffsPluginConfig Config { get; private set; } = null!;
@@ -43,8 +42,7 @@ namespace NamePlateDebuffs
             CommandManager commandManager, 
             DalamudPluginInterface pluginInterface, 
             DataManager dataManager,
-            Framework framework, 
-            SigScanner sigScanner
+            Framework framework
             )
         {
             ClientState = clientState;
@@ -52,14 +50,9 @@ namespace NamePlateDebuffs
             DataManager = dataManager;
             Interface = pluginInterface;
             Framework = framework;
-            SigScanner = sigScanner;
 
             Config = pluginInterface.GetPluginConfig() as NamePlateDebuffsPluginConfig ?? new NamePlateDebuffsPluginConfig();
             Config.Initialize(pluginInterface);
-            
-            var resolver = FFXIVClientStructs.Interop.Resolver.GetInstance;
-            resolver.SetupSearchSpace(sigScanner.SearchBase);
-            resolver.Resolve();
 
             Address = new PluginAddressResolver();
             Address.Setup();

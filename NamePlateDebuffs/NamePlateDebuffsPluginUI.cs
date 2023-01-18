@@ -13,11 +13,8 @@ namespace NamePlateDebuffs
     {
         private readonly NamePlateDebuffsPlugin _plugin;
 
-#if DEBUG
-        private bool ConfigOpen = true;
-#else
         private bool ConfigOpen = false;
-#endif
+        
         public bool IsConfigOpen => ConfigOpen;
 
         public NamePlateDebuffsPluginUI(NamePlateDebuffsPlugin p)
