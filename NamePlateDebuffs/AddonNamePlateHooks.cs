@@ -34,8 +34,8 @@ namespace NamePlateDebuffs
 
         public void Initialize()
         {
-            _hookAddonNamePlateFinalize = new Hook<AddonNamePlateFinalizePrototype>(_plugin.Address.AddonNamePlateFinalizeAddress, AddonNamePlateFinalizeDetour);
-            _hookAddonNamePlateDraw = new Hook<AddonNamePlateDrawPrototype>(_plugin.Address.AddonNamePlateDrawAddress, AddonNamePlateDrawDetour);
+            _hookAddonNamePlateFinalize = Service.Hook.HookFromAddress<AddonNamePlateFinalizePrototype>(_plugin.Address.AddonNamePlateFinalizeAddress, AddonNamePlateFinalizeDetour);
+            _hookAddonNamePlateDraw = Service.Hook.HookFromAddress<AddonNamePlateDrawPrototype>(_plugin.Address.AddonNamePlateDrawAddress, AddonNamePlateDrawDetour);
 
             _hookAddonNamePlateFinalize.Enable();
             _hookAddonNamePlateDraw.Enable();
@@ -108,13 +108,13 @@ namespace NamePlateDebuffs
                     }
                     else
                     {
-                        uint? localPlayerId = _plugin.ClientState.LocalPlayer?.ObjectId;
+                        uint? localPlayerId = Service.ClientState.LocalPlayer?.ObjectId;
                         if (localPlayerId is null)
                         {
                             _plugin.StatusNodeManager.HideUnusedStatus(npIndex, 0);
                             continue;
                         }
-                        StatusManager targetStatus = ((BattleChara*)objectInfo->GameObject)->StatusManager;
+                        StatusManager targetStatus = ((BattleChara*)objectInfo->GameObject)->GetStatusManager[0];
 
                         var statusArray = (Status*)targetStatus.Status;
 

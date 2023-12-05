@@ -154,14 +154,14 @@ namespace NamePlateDebuffs.StatusNode
             var newResNode = (AtkResNode*)IMemorySpace.GetUISpace()->Malloc((ulong)sizeof(AtkResNode), 8);
             if (newResNode == null)
             {
-                PluginLog.Debug("Failed to allocate memory for res node");
+                Service.Log.Debug("Failed to allocate memory for res node");
                 return null;
             }
             IMemorySpace.Memset(newResNode, 0, (ulong)sizeof(AtkResNode));
             newResNode->Ctor();
 
             newResNode->Type = NodeType.Res;
-            newResNode->Flags = (short)(NodeFlags.AnchorLeft | NodeFlags.AnchorTop);
+            newResNode->NodeFlags = NodeFlags.AnchorLeft | NodeFlags.AnchorTop;
             newResNode->DrawFlags = 0;
 
             return newResNode;

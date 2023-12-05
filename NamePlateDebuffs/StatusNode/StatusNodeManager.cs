@@ -30,7 +30,7 @@ namespace NamePlateDebuffs.StatusNode
 
             NodeGroups = new StatusNodeGroup[NamePlateCount];
 
-            StatusSheet = _plugin.DataManager.GetExcelSheet<Status>();
+            StatusSheet = Service.DataManager.GetExcelSheet<Status>();
         }
 
         public void Dispose()
@@ -70,9 +70,11 @@ namespace NamePlateDebuffs.StatusNode
             if (row == null)
                 return;
 
+            int iconId = (int) row.Icon;
+
             StatusNodeGroup group = NodeGroups[groupIndex];
 
-            group?.SetStatus(statusIndex, row.Icon, timer);
+            group?.SetStatus(statusIndex, iconId, timer);
         }
 
         public void HideUnusedStatus(int groupIndex, int statusCount)
