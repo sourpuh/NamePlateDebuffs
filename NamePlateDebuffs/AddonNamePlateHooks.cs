@@ -4,13 +4,29 @@ using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using NamePlateDebuffs.StatusNode;
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace NamePlateDebuffs
 {
     public unsafe class AddonNamePlateHooks : IDisposable
     {
+        const int MAX_STATUSES = 30;
+        readonly int[] STATUS_BLACKLIST =
+        {
+            48, // Food buff
+        };
+
+        public enum NameplateKind : byte
+        {
+            Player = 0,
+            FriendlyNPC = 1,
+            Enemy = 3,
+            PlayerPet = 4,
+        }
+
         private readonly NamePlateDebuffsPlugin _plugin;
 
         private delegate void AddonNamePlateFinalizePrototype(AddonNamePlate* thisPtr);
@@ -93,14 +109,18 @@ namespace NamePlateDebuffs
                     // Temporary work around until Dalamud 7.2.0 is pushed to xl, see https://github.com/goatcorp/Dalamud/commit/a173c5dac54fa4b55f5c5066bdcd93cbbcd74ed9
                     //var npIndex = objectInfo->Unk_4F;
                     var npIndex = *(&objectInfo->NamePlateObjectKind + 2); // Same as Unk_4F, but after 7.2.0 the Unk_4F field will be going away
-                    
-                    if (objectInfo->NamePlateObjectKind != 3)
-                    {
-                        _plugin.StatusNodeManager.SetGroupVisibility(npIndex, false, true);
-                        continue;
-                    }
+                    NameplateKind kind = (NameplateKind) objectInfo->NamePlateObjectKind;
 
-                    _plugin.StatusNodeManager.SetGroupVisibility(npIndex, true, false);
+                    switch (kind)
+                    {
+                        case NameplateKind.Player:
+                        case NameplateKind.Enemy:
+                            _plugin.StatusNodeManager.ResetGroupVisibility(npIndex, true, false);
+                            break;
+                        default:
+                            _plugin.StatusNodeManager.ResetGroupVisibility(npIndex, false, true);
+                            continue;
+                    }
 
                     if (_plugin.UI.IsConfigOpen)
                     {
@@ -111,29 +131,29 @@ namespace NamePlateDebuffs
                         uint? localPlayerId = Service.ClientState.LocalPlayer?.ObjectId;
                         if (localPlayerId is null)
                         {
-                            _plugin.StatusNodeManager.HideUnusedStatus(npIndex, 0);
+                            _plugin.StatusNodeManager.HideUnusedStatus(npIndex);
                             continue;
                         }
+                        bool targetIsLocalPlayer = objectInfo->GameObject->ObjectID == localPlayerId;
                         StatusManager targetStatus = ((BattleChara*)objectInfo->GameObject)->GetStatusManager[0];
 
                         var statusArray = (Status*)targetStatus.Status;
 
-                        int count = 0;
-
-                        for (int j = 0; j < 30; j++)
+                        for (int j = 0; j < MAX_STATUSES; j++)
                         {
                             Status status = statusArray[j];
                             if (status.StatusID == 0) continue;
-                            if (status.SourceID != localPlayerId) continue;
+                            if (STATUS_BLACKLIST.Contains(status.StatusID)) continue;
 
-                            _plugin.StatusNodeManager.SetStatus(npIndex, count, status.StatusID, (int)status.RemainingTime);
-                            count++;
+                            bool sourceIsLocalPlayer = status.SourceID == localPlayerId;
 
-                            if (count == 4)
+                            if(!_plugin.StatusNodeManager.AddStatus(npIndex, kind, status, sourceIsLocalPlayer, targetIsLocalPlayer))
+                            {
                                 break;
+                            }
                         }
 
-                        _plugin.StatusNodeManager.HideUnusedStatus(npIndex, count);
+                        _plugin.StatusNodeManager.HideUnusedStatus(npIndex);
                     }
 
                     if (objectInfo == ui3DModule->TargetObjectInfo && objectInfo != _lastTarget)

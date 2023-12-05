@@ -12,8 +12,8 @@ namespace NamePlateDebuffs.StatusNode
 
         public AtkResNode* RootNode { get; private set; }
         public StatusNode[] StatusNodes { get; private set; }
-
-        public static ushort NodePerGroupCount = 4;
+        int statusCount = 0;
+        public const ushort NodePerGroupCount = 8;
 
         public StatusNodeGroup(NamePlateDebuffsPlugin p)
         {
@@ -108,8 +108,9 @@ namespace NamePlateDebuffs.StatusNode
             }
         }
 
-        public void SetVisibility(bool enable, bool setChildren)
+        public void ResetVisibility(bool enable, bool setChildren)
         {
+            statusCount = 0;
             RootNode->ToggleVisibility(enable);
 
             if (setChildren)
@@ -117,18 +118,24 @@ namespace NamePlateDebuffs.StatusNode
                 ForEachNode(node => node.SetVisibility(enable));
             }
         }
-        
-        public void SetStatus(int statusIndex, int id, int timer)
+
+        public bool IsFull()
         {
-            if (statusIndex > NodePerGroupCount)
+            return statusCount >= NodePerGroupCount;
+        }
+        
+        public void AddStatus(int id, int timer)
+        {
+            if (IsFull())
                 return;
 
-            StatusNodes[statusIndex].SetStatus(id, timer);
+            StatusNodes[statusCount].SetStatus(id, timer);
+            statusCount++;
         }
 
-        public void HideUnusedStatus(int statusCount)
+        public void HideUnusedStatus()
         {
-            if (statusCount > NodePerGroupCount)
+            if (IsFull())
                 statusCount = NodePerGroupCount;
 
             for (int i = NodePerGroupCount - 1; i > statusCount - 1; i--)

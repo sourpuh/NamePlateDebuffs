@@ -16,7 +16,11 @@ namespace NamePlateDebuffs
 
         // General
         public bool Enabled = true;
-        public bool PlayerDebuffs = false;
+        public bool ShowSelfDebuffsOnEnemies = true;
+        public bool ShowSelfBuffsOnSelf = false;
+        public bool ShowSelfBuffsOnAllies = false;
+        public bool ShowDebuffsOnSelf = true;
+        public bool ShowDebuffsOnAllies = true;
         public int UpdateInterval = 100;
 
         // NodeGroup
@@ -38,11 +42,18 @@ namespace NamePlateDebuffs
         public Vector4 DurationTextColor = new Vector4(1, 1, 1, 1);
         public Vector4 DurationEdgeColor = new Vector4(0, 0, 0, 1);
 
+        // Blacklist
+        public bool HidePermanentBuffs = true;
+
         public void SetDefaults()
         {
             // General
             Enabled = true;
-            PlayerDebuffs = false;
+            ShowSelfDebuffsOnEnemies = true;
+            ShowSelfBuffsOnSelf = false;
+            ShowSelfBuffsOnAllies = false;
+            ShowDebuffsOnSelf = true;
+            ShowDebuffsOnAllies = true;
             UpdateInterval = 100;
 
             // NodeGroup
