@@ -4,12 +4,12 @@ using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using NamePlateDebuffs.StatusNode;
+using NameplateStatus.StatusNode;
 using System;
 using System.Diagnostics;
 using System.Linq;
 
-namespace NamePlateDebuffs
+namespace NameplateStatus
 {
     public unsafe class AddonNamePlateHooks : IDisposable
     {
@@ -27,7 +27,7 @@ namespace NamePlateDebuffs
             PlayerPet = 4,
         }
 
-        private readonly NamePlateDebuffsPlugin _plugin;
+        private readonly NameplateStatusPlugin _plugin;
 
         private delegate void AddonNamePlateFinalizePrototype(AddonNamePlate* thisPtr);
         private Hook<AddonNamePlateFinalizePrototype> _hookAddonNamePlateFinalize;
@@ -40,7 +40,7 @@ namespace NamePlateDebuffs
 
         private UI3DModule.ObjectInfo* _lastTarget;
 
-        public AddonNamePlateHooks(NamePlateDebuffsPlugin p)
+        public AddonNamePlateHooks(NameplateStatusPlugin p)
         {
             _plugin = p;
 

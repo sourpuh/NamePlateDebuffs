@@ -1,4 +1,4 @@
-﻿namespace NamePlateDebuffs.StatusNode
+﻿namespace NameplateStatus.StatusNode
 {
     enum StatusCategory
     {

@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 using System.Numerics;
 using Dalamud.Interface.Components;
 
-namespace NamePlateDebuffs
+namespace NameplateStatus
 {
-    public class NamePlateDebuffsPluginUI : IDisposable
+    public class NameplateStatusPluginUI : IDisposable
     {
-        private readonly NamePlateDebuffsPlugin _plugin;
+        private readonly NameplateStatusPlugin _plugin;
 
         private bool ConfigOpen = false;
         
         public bool IsConfigOpen => ConfigOpen;
 
-        public NamePlateDebuffsPluginUI(NamePlateDebuffsPlugin p)
+        public NameplateStatusPluginUI(NameplateStatusPlugin p)
         {
             _plugin = p;
 

@@ -7,10 +7,10 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NamePlateDebuffs
+namespace NameplateStatus
 {
     [Serializable]
-    public class NamePlateDebuffsPluginConfig : IPluginConfiguration
+    public class NameplateStatusPluginConfig : IPluginConfiguration
     {
         public int Version { get; set; } = 1;
 

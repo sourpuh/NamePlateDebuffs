@@ -3,11 +3,11 @@ using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.System.Memory;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
-namespace NamePlateDebuffs.StatusNode
+namespace NameplateStatus.StatusNode
 {
     public unsafe class StatusNode
     {
-        private NamePlateDebuffsPlugin _plugin;
+        private NameplateStatusPlugin _plugin;
 
         public AtkResNode* RootNode { get; private set; }
         public AtkImageNode* IconNode { get; private set; }
@@ -19,7 +19,7 @@ namespace NamePlateDebuffs.StatusNode
         private int CurrentIconId = DefaultIconId;
         private int CurrentTimer = 60;
 
-        public StatusNode(NamePlateDebuffsPlugin p)
+        public StatusNode(NameplateStatusPlugin p)
         {
             _plugin = p;
         }

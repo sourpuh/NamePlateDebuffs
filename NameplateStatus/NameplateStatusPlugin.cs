@@ -1,29 +1,29 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Lumina.Excel.GeneratedSheets;
-using NamePlateDebuffs.StatusNode;
+using NameplateStatus.StatusNode;
 using System.Collections.Generic;
 using Dalamud.Logging;
 
-namespace NamePlateDebuffs
+namespace NameplateStatus
 {
-    public class NamePlateDebuffsPlugin : IDalamudPlugin
+    public class NameplateStatusPlugin : IDalamudPlugin
     {
-        public string Name => "NamePlateDebuffs";
+        public string Name => "NameplateStatus";
 
         public PluginAddressResolver Address { get; private set; } = null!;
         public StatusNodeManager StatusNodeManager { get; private set; } = null!;
         public static AddonNamePlateHooks Hooks { get; private set; } = null!;
-        public NamePlateDebuffsPluginUI UI { get; private set; } = null!;
-        public NamePlateDebuffsPluginConfig Config { get; private set; } = null!;
+        public NameplateStatusPluginUI UI { get; private set; } = null!;
+        public NameplateStatusPluginConfig Config { get; private set; } = null!;
 
         internal bool InPvp;
 
-        public NamePlateDebuffsPlugin(DalamudPluginInterface pluginInterface)
+        public NameplateStatusPlugin(DalamudPluginInterface pluginInterface)
         {
             Service.Initialize(pluginInterface);
 
-            Config = Service.Interface.GetPluginConfig() as NamePlateDebuffsPluginConfig ?? new NamePlateDebuffsPluginConfig();
+            Config = Service.Interface.GetPluginConfig() as NameplateStatusPluginConfig ?? new NameplateStatusPluginConfig();
             Config.Initialize(Service.Interface);
 
             Address = new PluginAddressResolver();
@@ -34,7 +34,7 @@ namespace NamePlateDebuffs
             Hooks = new AddonNamePlateHooks(this);
             Hooks.Initialize();
 
-            UI = new NamePlateDebuffsPluginUI(this);
+            UI = new NameplateStatusPluginUI(this);
 
             Service.ClientState.TerritoryChanged += OnTerritoryChange;
 

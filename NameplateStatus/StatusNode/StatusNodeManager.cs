@@ -10,16 +10,16 @@ using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Security.Principal;
-using static NamePlateDebuffs.AddonNamePlateHooks;
+using static NameplateStatus.AddonNamePlateHooks;
 
 using Status = FFXIVClientStructs.FFXIV.Client.Game.Status;
 using StatusInfo = Lumina.Excel.GeneratedSheets.Status;
 
-namespace NamePlateDebuffs.StatusNode
+namespace NameplateStatus.StatusNode
 {
     public unsafe class StatusNodeManager : IDisposable
     {
-        private NamePlateDebuffsPlugin _plugin;
+        private NameplateStatusPlugin _plugin;
 
         private AddonNamePlate* namePlateAddon;
 
@@ -32,7 +32,7 @@ namespace NamePlateDebuffs.StatusNode
 
         public bool Built { get; private set; }
 
-        internal StatusNodeManager(NamePlateDebuffsPlugin p)
+        internal StatusNodeManager(NameplateStatusPlugin p)
         {
             _plugin = p; 
 

@@ -1,0 +1,8 @@
+{
+    "Name": "Nameplate Status",
+    "InternalName": "NameplateStatus",
+    "Author": "sourpuh",
+    "Description": "Displays statuses on enemy and player nameplates.\nForked from Nameplate Debuffs by aers, JHerig, squidmade",
+    "RepoUrl": "https://github.com/sourpuh/NamePlateDebuffs",
+    "Punchline": "Displays statuses on enemy and player nameplates."
+}

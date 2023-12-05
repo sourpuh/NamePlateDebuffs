@@ -4,7 +4,7 @@ using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Dalamud.Game;
 
-namespace NamePlateDebuffs
+namespace NameplateStatus
 {
     public class Service
     {

@@ -2,10 +2,10 @@
 
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>NamePlateDebuffs</PackageId>
-    <Version>1.0.2.0</Version>
-    <Authors>aers, JHerig, squidmade</Authors>
-    <PackageProjectUrl>https://github.com/jherig/NamePlateDebuffs</PackageProjectUrl>
+    <PackageId>NameplateStatus</PackageId>
+    <Version>1.0.0.0</Version>
+    <Authors>sourpuh</Authors>
+    <PackageProjectUrl>https://github.com/sourpuh/NamePlateDebuffs</PackageProjectUrl>
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
@@ -26,12 +26,6 @@
     <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="NamePlateDebuffs.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Optimize>True</Optimize>

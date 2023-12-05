@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dalamud.Logging;
 
-namespace NamePlateDebuffs
+namespace NameplateStatus
 {
     public class PluginAddressResolver : BaseAddressResolver
     {

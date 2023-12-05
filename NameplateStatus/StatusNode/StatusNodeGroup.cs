@@ -4,18 +4,18 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using System;
 using Dalamud.Logging;
 
-namespace NamePlateDebuffs.StatusNode
+namespace NameplateStatus.StatusNode
 {
     public unsafe class StatusNodeGroup
     {
-        private NamePlateDebuffsPlugin _plugin;
+        private NameplateStatusPlugin _plugin;
 
         public AtkResNode* RootNode { get; private set; }
         public StatusNode[] StatusNodes { get; private set; }
         int statusCount = 0;
         public const ushort NodePerGroupCount = 8;
 
-        public StatusNodeGroup(NamePlateDebuffsPlugin p)
+        public StatusNodeGroup(NameplateStatusPlugin p)
         {
             _plugin = p;
 
