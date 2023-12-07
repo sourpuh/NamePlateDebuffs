@@ -30,10 +30,7 @@ namespace NamePlateDebuffs
 
             _timer = new Stopwatch();
             _elapsed = 0;
-        }
 
-        public void Initialize()
-        {
             _hookAddonNamePlateFinalize = Service.Hook.HookFromAddress<AddonNamePlateFinalizePrototype>(_plugin.Address.AddonNamePlateFinalizeAddress, AddonNamePlateFinalizeDetour);
             _hookAddonNamePlateDraw = Service.Hook.HookFromAddress<AddonNamePlateDrawPrototype>(_plugin.Address.AddonNamePlateDrawAddress, AddonNamePlateDrawDetour);
 

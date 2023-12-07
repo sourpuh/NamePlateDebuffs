@@ -15,7 +15,7 @@ namespace NamePlateDebuffs.StatusNode
 
         private AddonNamePlate* namePlateAddon;
 
-        private StatusNodeGroup[] NodeGroups;
+        private StatusNodeGroup?[] NodeGroups;
 
         private ExcelSheet<Status> StatusSheet;
 
@@ -30,7 +30,7 @@ namespace NamePlateDebuffs.StatusNode
 
             NodeGroups = new StatusNodeGroup[NamePlateCount];
 
-            StatusSheet = Service.DataManager.GetExcelSheet<Status>();
+            StatusSheet = Service.DataManager.GetExcelSheet<Status>()!;
         }
 
         public void Dispose()
@@ -45,50 +45,50 @@ namespace NamePlateDebuffs.StatusNode
 
         public void ForEachGroup(Action<StatusNodeGroup> func)
         {
-            foreach(StatusNodeGroup group in NodeGroups)
-                if (group != null)
+            foreach(StatusNodeGroup? group in NodeGroups)
+                if (group is not null)
                     func(group);
         }
 
         public void ForEachNode(Action<StatusNode> func)
         {
-            foreach (StatusNodeGroup group in NodeGroups)
+            foreach (StatusNodeGroup? group in NodeGroups)
                 group?.ForEachNode(func);
         }
 
         public void SetGroupVisibility(int index, bool enable, bool setChildren = false)
         {
-            StatusNodeGroup group = NodeGroups[index];
+            StatusNodeGroup? group = NodeGroups[index];
 
             group?.SetVisibility(enable, setChildren);
         }
 
         public void SetStatus(int groupIndex, int statusIndex, int id, int timer)
         {
-            Status row = StatusSheet.GetRow((uint) id);
+            Status row = StatusSheet.GetRow((uint) id)!;
 
-            if (row == null)
+            if (row is null)
                 return;
 
             int iconId = (int) row.Icon;
 
-            StatusNodeGroup group = NodeGroups[groupIndex];
+            StatusNodeGroup? group = NodeGroups[groupIndex];
 
             group?.SetStatus(statusIndex, iconId, timer);
         }
 
         public void HideUnusedStatus(int groupIndex, int statusCount)
         {
-            StatusNodeGroup group = NodeGroups[groupIndex];
+            StatusNodeGroup? group = NodeGroups[groupIndex];
 
             group?.HideUnusedStatus(statusCount);
         }
 
         public void SetDepthPriority(int groupIndex, bool enable)
         {
-            StatusNodeGroup group = NodeGroups[groupIndex];
+            StatusNodeGroup? group = NodeGroups[groupIndex];
 
-            if (group == null)
+            if (group is null)
                 return;
 
             group.RootNode->SetUseDepthBasedPriority(enable);
@@ -150,11 +150,11 @@ namespace NamePlateDebuffs.StatusNode
                 var npObj = &namePlateAddon->NamePlateObjectArray[i];
                 var npComponent = npObj->RootNode->Component;
 
-                if (NodeGroups[i] != null)
+                if (NodeGroups[i] is not null)
                 {
-                    var lastDefaultNode = NodeGroups[i].RootNode->NextSiblingNode;
+                    var lastDefaultNode = NodeGroups[i]!.RootNode->NextSiblingNode;
                     lastDefaultNode->PrevSiblingNode = null;
-                    NodeGroups[i].DestroyNodes();
+                    NodeGroups[i]!.DestroyNodes();
                 }
                 NodeGroups[i] = null;
 

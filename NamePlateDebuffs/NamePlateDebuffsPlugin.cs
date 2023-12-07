@@ -34,7 +34,6 @@ namespace NamePlateDebuffs
             StatusNodeManager = new StatusNodeManager(this);
 
             Hooks = new AddonNamePlateHooks(this);
-            Hooks.Initialize();
 
             ConfigWindow = new ConfigWindow(this);
             WindowSystem.AddWindow(ConfigWindow);
@@ -63,8 +62,8 @@ namespace NamePlateDebuffs
         {
             try
             {
-                TerritoryType territory = Service.DataManager.GetExcelSheet<TerritoryType>()?.GetRow(e);
-                if (territory != null) InPvp = territory.IsPvpZone;
+                TerritoryType? territory = Service.DataManager.GetExcelSheet<TerritoryType>()?.GetRow(e);
+                if (territory is not null) InPvp = territory.IsPvpZone;
             }
             catch (KeyNotFoundException)
             {
