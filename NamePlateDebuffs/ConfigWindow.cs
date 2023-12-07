@@ -1,83 +1,62 @@
 ﻿using ImGuiNET;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Numerics;
-using Dalamud.Interface.Components;
+using Dalamud.Interface.Windowing;
 
 namespace NamePlateDebuffs
 {
-    public class NamePlateDebuffsPluginUI : IDisposable
+    public class ConfigWindow : Window, IDisposable
     {
         private readonly NamePlateDebuffsPlugin _plugin;
-
-        private bool ConfigOpen = false;
         
-        public bool IsConfigOpen => ConfigOpen;
-
-        public NamePlateDebuffsPluginUI(NamePlateDebuffsPlugin p)
+        public ConfigWindow(NamePlateDebuffsPlugin p) : base(
+        "Nameplate Debuffs Configuration",
+        ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
         {
             _plugin = p;
 
-            Service.Interface.UiBuilder.OpenConfigUi += UiBuilder_OnOpenConfigUi;
-            Service.Interface.UiBuilder.Draw += UiBuilder_OnBuild;
+            Size = new Vector2(500, 647);
+            SizeCondition = ImGuiCond.Always;
         }
 
         public void Dispose()
         {
-            Service.Interface.UiBuilder.OpenConfigUi -= UiBuilder_OnOpenConfigUi;
-            Service.Interface.UiBuilder.Draw -= UiBuilder_OnBuild;
         }
 
-        public void ToggleConfig()
+        public override void Draw()
         {
-            ConfigOpen = !ConfigOpen;
-        }
-
-        public void UiBuilder_OnOpenConfigUi() => ConfigOpen = true;
-
-        public void UiBuilder_OnBuild()
-        {
-            if (!ConfigOpen)
-                return;
-
-            ImGui.SetNextWindowSize(new Vector2(420, 647), ImGuiCond.Always);
-
-            if (!ImGui.Begin(_plugin.Name, ref ConfigOpen, ImGuiWindowFlags.NoResize))
-            {
-                ImGui.End();
-                return;
-            }
-
             bool needSave = false;
 
+            needSave |= ImGui.Checkbox("Enabled", ref _plugin.Config.Enabled);
+            ImGui.Text("While config is open, test nodes are displayed to help with configuration.");
+            if (ImGui.Button("Reset Config to Defaults"))
+            {
+                _plugin.Config.SetDefaults();
+                needSave = true;
+            }
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
-                needSave |= ImGui.Checkbox("Enabled", ref _plugin.Config.Enabled);
+                ImGui.Indent();
                 needSave |= ImGui.InputInt("Update Interval (ms)", ref _plugin.Config.UpdateInterval, 10);
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Interval between status updates in milliseconds");
-                if (ImGui.Button("Reset Config to Defaults"))
-                {
-                    _plugin.Config.SetDefaults();
-                    needSave = true;
-                }
-                ImGui.Text("While config is open, test nodes are displayed to help with configuration.");
+                ImGui.Unindent();
             }
 
             if (ImGui.CollapsingHeader("Node Group", ImGuiTreeNodeFlags.DefaultOpen))
             {
+                ImGui.Indent();
                 needSave |= ImGui.Checkbox("Fill From Right", ref _plugin.Config.FillFromRight);
                 needSave |= ImGui.SliderInt("X Offset", ref _plugin.Config.GroupX, -200, 200);
                 needSave |= ImGui.SliderInt("Y Offset", ref _plugin.Config.GroupY, -200, 200);
                 needSave |= ImGui.SliderInt("Node Spacing", ref _plugin.Config.NodeSpacing, -5, 30);
                 needSave |= ImGui.SliderFloat("Group Scale", ref _plugin.Config.Scale, 0.01F, 3.0F);
+                ImGui.Unindent();
             }
 
             if (ImGui.CollapsingHeader("Node", ImGuiTreeNodeFlags.DefaultOpen))
             {
+                ImGui.Indent();
                 ImGui.Text("Try and maintain a 3:4 ratio of Icon Width:Icon Height for best results.");
                 needSave |= ImGui.SliderInt("Icon X Offset", ref _plugin.Config.IconX, -200, 200);
                 needSave |= ImGui.SliderInt("Icon Y Offset", ref _plugin.Config.IconY, -200, 200);
@@ -90,6 +69,7 @@ namespace NamePlateDebuffs
 
                 needSave |= ImGui.ColorEdit4("Duration Text Color", ref _plugin.Config.DurationTextColor);
                 needSave |= ImGui.ColorEdit4("Duration Edge Color", ref _plugin.Config.DurationEdgeColor);
+                ImGui.Unindent();
             }
 
             if (needSave)
@@ -97,9 +77,6 @@ namespace NamePlateDebuffs
                 _plugin.StatusNodeManager.LoadConfig();
                 _plugin.Config.Save();
             }
-
-
-            ImGui.End();
         }
     }
 }

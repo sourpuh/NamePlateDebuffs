@@ -4,17 +4,19 @@ using Lumina.Excel.GeneratedSheets;
 using NamePlateDebuffs.StatusNode;
 using System.Collections.Generic;
 using Dalamud.Logging;
+using Dalamud.Interface.Windowing;
 
 namespace NamePlateDebuffs
 {
     public class NamePlateDebuffsPlugin : IDalamudPlugin
     {
         public string Name => "NamePlateDebuffs";
-
+        private const string CommandName = "/npdebuffs";
         public PluginAddressResolver Address { get; private set; } = null!;
         public StatusNodeManager StatusNodeManager { get; private set; } = null!;
         public static AddonNamePlateHooks Hooks { get; private set; } = null!;
-        public NamePlateDebuffsPluginUI UI { get; private set; } = null!;
+        public WindowSystem WindowSystem = new("NameplateDebuffs");
+        public ConfigWindow ConfigWindow { get; init; }
         public NamePlateDebuffsPluginConfig Config { get; private set; } = null!;
 
         internal bool InPvp;
@@ -34,11 +36,14 @@ namespace NamePlateDebuffs
             Hooks = new AddonNamePlateHooks(this);
             Hooks.Initialize();
 
-            UI = new NamePlateDebuffsPluginUI(this);
+            ConfigWindow = new ConfigWindow(this);
+            WindowSystem.AddWindow(ConfigWindow);
+            pluginInterface.UiBuilder.Draw += DrawUI;
+            pluginInterface.UiBuilder.OpenConfigUi += OpenConfigUI;
 
             Service.ClientState.TerritoryChanged += OnTerritoryChange;
 
-            Service.CommandManager.AddHandler("/npdebuffs", new CommandInfo(this.ToggleConfig)
+            Service.CommandManager.AddHandler(CommandName, new CommandInfo(this.OnCommand)
             {
                 HelpMessage = "Toggles config window."
             });
@@ -46,9 +51,10 @@ namespace NamePlateDebuffs
         public void Dispose()
         {
             Service.ClientState.TerritoryChanged -= OnTerritoryChange;
-            Service.CommandManager.RemoveHandler("/npdebuffs");
+            Service.CommandManager.RemoveHandler(CommandName);
 
-            UI.Dispose();
+            this.WindowSystem.RemoveAllWindows();
+            ConfigWindow.Dispose();
             Hooks.Dispose();
             StatusNodeManager.Dispose();
         }
@@ -65,10 +71,19 @@ namespace NamePlateDebuffs
                 Service.Log.Warning("Could not get territory for current zone");
             }
         }
-
-        private void ToggleConfig(string command, string args)
+        private void DrawUI()
         {
-            UI.ToggleConfig();
+            WindowSystem.Draw();
+        }
+
+        public void OpenConfigUI()
+        {
+            ConfigWindow.IsOpen = true;
+        }
+
+        private void OnCommand(string command, string args)
+        {
+            ConfigWindow.IsOpen = !ConfigWindow.IsOpen;
         }
     }
 }

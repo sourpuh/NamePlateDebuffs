@@ -102,7 +102,7 @@ namespace NamePlateDebuffs
 
                     _plugin.StatusNodeManager.SetGroupVisibility(npIndex, true, false);
 
-                    if (_plugin.UI.IsConfigOpen)
+                    if (_plugin.ConfigWindow.IsOpen)
                     {
                         _plugin.StatusNodeManager.ForEachNode(node => node.SetStatus(StatusNode.StatusNode.DefaultIconId, 20));
                     }
