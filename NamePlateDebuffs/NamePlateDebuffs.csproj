@@ -5,7 +5,7 @@
 
   <PropertyGroup>
     <PackageId>NamePlateDebuffs</PackageId>
-    <Version>1.0.2.0</Version>
+    <Version>1.0.3.0</Version>
     <Authors>aers, JHerig, squidmade</Authors>
     <PackageProjectUrl>https://github.com/sourpuh/NamePlateDebuffs</PackageProjectUrl>
   </PropertyGroup>
