@@ -84,13 +84,8 @@ namespace NamePlateDebuffs
                 {
                     var objectInfo = ((UI3DModule.ObjectInfo**)ui3DModule->NamePlateObjectInfoPointerArray)[i];
 
-                    // As of at least 6.28 this field has the same value as NamePlateObjectKind: 
-                    //var npIndex = objectInfo->NamePlateIndex;
+                    var npIndex = objectInfo->NamePlateIndex;
 
-                    // Temporary work around until Dalamud 7.2.0 is pushed to xl, see https://github.com/goatcorp/Dalamud/commit/a173c5dac54fa4b55f5c5066bdcd93cbbcd74ed9
-                    //var npIndex = objectInfo->Unk_4F;
-                    var npIndex = *(&objectInfo->NamePlateObjectKind + 2); // Same as Unk_4F, but after 7.2.0 the Unk_4F field will be going away
-                    
                     if (objectInfo->NamePlateObjectKind != 3)
                     {
                         _plugin.StatusNodeManager.SetGroupVisibility(npIndex, false, true);
