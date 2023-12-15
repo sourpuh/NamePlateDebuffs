@@ -96,7 +96,7 @@ namespace NamePlateDebuffs
 
                     if (_plugin.ConfigWindow.IsOpen)
                     {
-                        _plugin.StatusNodeManager.ForEachNode(node => node.SetStatus(StatusNode.StatusNode.DefaultIconId, 20));
+                        _plugin.StatusNodeManager.ForEachNode(node => node.SetStatus(StatusNode.StatusNode.DefaultDebuffId, 20));
                     }
                     else
                     {

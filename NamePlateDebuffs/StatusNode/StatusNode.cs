@@ -14,9 +14,10 @@ namespace NamePlateDebuffs.StatusNode
         public AtkTextNode* DurationNode { get; private set; }
         public bool Visible { get; private set; }
 
-        public static int DefaultIconId = 10205;
+        public const int DefaultBuffId = 10205;
+        public const int DefaultDebuffId = 016754;
 
-        private int CurrentIconId = DefaultIconId;
+        private int CurrentIconId = DefaultDebuffId;
         private int CurrentTimer = 60;
 
         public StatusNode(NamePlateDebuffsPlugin p)
@@ -223,7 +224,7 @@ namespace NamePlateDebuffs.StatusNode
 
             newImageNode->PartsList = partsList;
 
-            newImageNode->LoadIconTexture(DefaultIconId, 0);
+            newImageNode->LoadIconTexture(DefaultDebuffId, 0);
 
             return newImageNode;
         }
