@@ -21,8 +21,6 @@ namespace NamePlateDebuffs
 
         private readonly Stopwatch _lastUpdateTimer;
 
-        private UI3DModule.ObjectInfo* _lastTarget;
-
         public AddonNamePlateHooks(NamePlateDebuffsPlugin p)
         {
             _plugin = p;
@@ -82,8 +80,9 @@ namespace NamePlateDebuffs
                     return;
                 }
 
-                var framework = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance();
+                var framework = Framework.Instance();
                 var ui3DModule = framework->GetUiModule()->GetUI3DModule();
+                var targetObjectInfo = ui3DModule->TargetObjectInfo;
 
                 for (int i = 0; i < ui3DModule->NamePlateObjectInfoCount; i++)
                 {
@@ -103,6 +102,10 @@ namespace NamePlateDebuffs
                             _plugin.StatusNodeManager.SetGroupVisibility(npIndex, false, true);
                             continue;
                     }
+
+                    // Disable depth priority for target's nameplate so it shows up in front of walls and other nameplates.
+                    bool nameplateIsTarget = targetObjectInfo == objectInfo;
+                    _plugin.StatusNodeManager.SetDepthPriority(npIndex, !nameplateIsTarget);
 
                     _plugin.StatusNodeManager.SetGroupVisibility(npIndex, true, false);
 
@@ -138,14 +141,6 @@ namespace NamePlateDebuffs
                         }
 
                         _plugin.StatusNodeManager.HideUnusedStatus(npIndex, count);
-                    }
-
-                    if (objectInfo == ui3DModule->TargetObjectInfo && objectInfo != _lastTarget)
-                    {
-                        _plugin.StatusNodeManager.SetDepthPriority(npIndex, false);
-                        if (_lastTarget != null)
-                            _plugin.StatusNodeManager.SetDepthPriority(_lastTarget->NamePlateIndex, true);
-                        _lastTarget = objectInfo;
                     }
                 }
             }
