@@ -74,20 +74,34 @@ namespace NamePlateDebuffs
                         return;
                 }
 
+                uint? localPlayerId = Service.ClientState.LocalPlayer?.ObjectId;
+                if (localPlayerId is null)
+                {
+                    _plugin.StatusNodeManager.ForEachGroup(group => group.SetVisibility(false, true));
+                    _hookAddonNamePlateDraw.Original(thisPtr);
+                    return;
+                }
+
                 var framework = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance();
                 var ui3DModule = framework->GetUiModule()->GetUI3DModule();
 
                 for (int i = 0; i < ui3DModule->NamePlateObjectInfoCount; i++)
                 {
                     var objectInfo = ((UI3DModule.ObjectInfo**)ui3DModule->NamePlateObjectInfoPointerArray)[i];
-
+                    bool nameplateIsLocalPlayer = objectInfo->GameObject->ObjectID == localPlayerId;
                     var npIndex = objectInfo->NamePlateIndex;
 
                     NameplateKind kind = (NameplateKind)objectInfo->NamePlateObjectKind;
-                    if (kind != NameplateKind.Enemy)
+                    switch (kind)
                     {
-                        _plugin.StatusNodeManager.SetGroupVisibility(npIndex, false, true);
-                        continue;
+                        case NameplateKind.Player:
+                            if (nameplateIsLocalPlayer) break;
+                            goto default;
+                        case NameplateKind.Enemy:
+                            break;
+                        default:
+                            _plugin.StatusNodeManager.SetGroupVisibility(npIndex, false, true);
+                            continue;
                     }
 
                     _plugin.StatusNodeManager.SetGroupVisibility(npIndex, true, false);
@@ -98,12 +112,12 @@ namespace NamePlateDebuffs
                     }
                     else
                     {
-                        uint? localPlayerId = Service.ClientState.LocalPlayer?.ObjectId;
-                        if (localPlayerId is null)
+                        if (nameplateIsLocalPlayer)
                         {
                             _plugin.StatusNodeManager.HideUnusedStatus(npIndex, 0);
                             continue;
                         }
+
                         StatusManager targetStatus = ((BattleChara*)objectInfo->GameObject)->GetStatusManager[0];
 
                         var statusArray = (Status*)targetStatus.Status;
