@@ -44,9 +44,32 @@ namespace NamePlateDebuffs
 
             Service.CommandManager.AddHandler(CommandName, new CommandInfo(this.OnCommand)
             {
-                HelpMessage = "Toggles config window."
+                HelpMessage = "Toggles configuration window\n" +
+                CommandName + " toggle → Toggle Nameplate Debuffs\n" +
+                CommandName + " enable → Enables Nameplate Debuffs\n" +
+                CommandName + " disable → Disables Nameplate Debuffs"
             });
         }
+
+        private void OnCommand(string command, string args)
+        {
+            switch (args.TrimEnd().ToLower())
+            {
+                case "":
+                    ConfigWindow.IsOpen = !ConfigWindow.IsOpen;
+                    return;
+                case "toggle":
+                    Config.Enabled = !Config.Enabled;
+                    return;
+                case "enable":
+                    Config.Enabled = true;
+                    return;
+                case "disable":
+                    Config.Enabled = false;
+                    return;
+            }
+        }
+
         public void Dispose()
         {
             Service.ClientState.TerritoryChanged -= OnTerritoryChange;
@@ -78,11 +101,6 @@ namespace NamePlateDebuffs
         public void OpenConfigUI()
         {
             ConfigWindow.IsOpen = true;
-        }
-
-        private void OnCommand(string command, string args)
-        {
-            ConfigWindow.IsOpen = !ConfigWindow.IsOpen;
         }
     }
 }
