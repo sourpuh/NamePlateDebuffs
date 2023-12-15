@@ -17,7 +17,7 @@ namespace NamePlateDebuffs
         // General
         public bool Enabled = true;
         public bool PlayerDebuffs = false;
-        public int UpdateInterval = 100;
+        public int UpdateIntervalMillis = 100;
 
         // NodeGroup
         public int GroupX = 27;
@@ -43,7 +43,7 @@ namespace NamePlateDebuffs
             // General
             Enabled = true;
             PlayerDebuffs = false;
-            UpdateInterval = 100;
+            UpdateIntervalMillis = 100;
 
             // NodeGroup
             GroupX = 27;

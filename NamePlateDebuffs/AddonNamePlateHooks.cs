@@ -19,8 +19,7 @@ namespace NamePlateDebuffs
         private delegate void AddonNamePlateDrawPrototype(AddonNamePlate* thisPtr);
         private Hook<AddonNamePlateDrawPrototype> _hookAddonNamePlateDraw;
 
-        private readonly Stopwatch _timer;
-        private long _elapsed;
+        private readonly Stopwatch _lastUpdateTimer;
 
         private UI3DModule.ObjectInfo* _lastTarget;
 
@@ -28,8 +27,8 @@ namespace NamePlateDebuffs
         {
             _plugin = p;
 
-            _timer = new Stopwatch();
-            _elapsed = 0;
+            _lastUpdateTimer = new Stopwatch();
+            _lastUpdateTimer.Start();
 
             _hookAddonNamePlateFinalize = Service.Hook.HookFromAddress<AddonNamePlateFinalizePrototype>(_plugin.Address.AddonNamePlateFinalizeAddress, AddonNamePlateFinalizeDetour);
             _hookAddonNamePlateDraw = Service.Hook.HookFromAddress<AddonNamePlateDrawPrototype>(_plugin.Address.AddonNamePlateDrawAddress, AddonNamePlateDrawDetour);
@@ -48,11 +47,10 @@ namespace NamePlateDebuffs
         {
             if (!_plugin.Config.Enabled || _plugin.InPvp)
             {
-                if (_timer.IsRunning)
+                if (_lastUpdateTimer.IsRunning)
                 {
-                    _timer.Stop();
-                    _timer.Reset();
-                    _elapsed = 0;
+                    _lastUpdateTimer.Stop();
+                    _lastUpdateTimer.Reset();
                 }
 
                 if (_plugin.StatusNodeManager.Built)
@@ -65,11 +63,10 @@ namespace NamePlateDebuffs
                 return;
             }
 
-            _elapsed += _timer.ElapsedMilliseconds;
-            _timer.Restart();
-
-            if (_elapsed >= _plugin.Config.UpdateInterval)
+            if (_lastUpdateTimer.ElapsedMilliseconds >= _plugin.Config.UpdateIntervalMillis)
             {
+                _lastUpdateTimer.Restart();
+
                 if (!_plugin.StatusNodeManager.Built)
                 {
                     _plugin.StatusNodeManager.SetNamePlateAddonPointer(thisPtr);
@@ -137,8 +134,6 @@ namespace NamePlateDebuffs
                         _lastTarget = objectInfo;
                     }
                 }
-
-                _elapsed = 0;
             }
 
             _hookAddonNamePlateDraw.Original(thisPtr);

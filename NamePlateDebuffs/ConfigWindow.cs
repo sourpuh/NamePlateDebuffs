@@ -35,7 +35,7 @@ namespace NamePlateDebuffs
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 ImGui.Indent();
-                needSave |= ImGui.InputInt("Update Interval (ms)", ref _plugin.Config.UpdateInterval, 10);
+                needSave |= ImGui.InputInt("Update Interval (ms)", ref _plugin.Config.UpdateIntervalMillis, 10);
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Interval between status updates in milliseconds");
                 ImGui.Unindent();
