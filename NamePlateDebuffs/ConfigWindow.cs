@@ -8,15 +8,13 @@ namespace NamePlateDebuffs
     public class ConfigWindow : Window, IDisposable
     {
         private readonly NamePlateDebuffsPlugin _plugin;
-        
-        public ConfigWindow(NamePlateDebuffsPlugin p) : base(
-        "Nameplate Debuffs Configuration",
-        ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+
+        public ConfigWindow(NamePlateDebuffsPlugin p) : base("Nameplate Debuffs Configuration")
         {
             _plugin = p;
 
             Size = new Vector2(500, 647);
-            SizeCondition = ImGuiCond.Always;
+            SizeCondition = ImGuiCond.FirstUseEver;
         }
 
         public void Dispose()
