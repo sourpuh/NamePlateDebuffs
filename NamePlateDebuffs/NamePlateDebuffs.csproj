@@ -5,8 +5,8 @@
 
   <PropertyGroup>
     <PackageId>NamePlateDebuffs</PackageId>
-    <Version>1.0.3.0</Version>
-    <Authors>aers, JHerig, squidmade</Authors>
+    <Version>1.1.0.0</Version>
+    <Authors>aers, JHerig, squidmade, sourpuh</Authors>
     <PackageProjectUrl>https://github.com/sourpuh/NamePlateDebuffs</PackageProjectUrl>
   </PropertyGroup>
 
