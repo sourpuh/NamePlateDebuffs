@@ -86,7 +86,8 @@ namespace NamePlateDebuffs
 
                     var npIndex = objectInfo->NamePlateIndex;
 
-                    if (objectInfo->NamePlateObjectKind != 3)
+                    NameplateKind kind = (NameplateKind)objectInfo->NamePlateObjectKind;
+                    if (kind != NameplateKind.Enemy)
                     {
                         _plugin.StatusNodeManager.SetGroupVisibility(npIndex, false, true);
                         continue;
