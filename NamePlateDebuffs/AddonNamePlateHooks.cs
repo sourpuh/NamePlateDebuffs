@@ -60,7 +60,7 @@ namespace NamePlateDebuffs
                 _hookAddonNamePlateDraw.Original(thisPtr);
                 return;
             }
-
+            _lastUpdateTimer.Start();
             if (_lastUpdateTimer.ElapsedMilliseconds >= _plugin.Config.UpdateIntervalMillis)
             {
                 _lastUpdateTimer.Restart();
