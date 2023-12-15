@@ -1,8 +1,6 @@
-﻿using Dalamud.Plugin;
-using FFXIVClientStructs.FFXIV.Client.System.Memory;
+﻿using FFXIVClientStructs.FFXIV.Client.System.Memory;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using System;
-using Dalamud.Logging;
 
 namespace NamePlateDebuffs.StatusNode
 {
@@ -12,8 +10,8 @@ namespace NamePlateDebuffs.StatusNode
 
         public AtkResNode* RootNode { get; private set; }
         public StatusNode[] StatusNodes { get; private set; }
-
-        public static ushort NodePerGroupCount = 4;
+        public static ushort NodePerGroupCount = 8;
+        private int _statusCount = 0;
 
         public StatusNodeGroup(NamePlateDebuffsPlugin p)
         {
@@ -110,6 +108,7 @@ namespace NamePlateDebuffs.StatusNode
 
         public void SetVisibility(bool enable, bool setChildren)
         {
+            _statusCount = 0;
             RootNode->ToggleVisibility(enable);
 
             if (setChildren)
@@ -117,21 +116,24 @@ namespace NamePlateDebuffs.StatusNode
                 ForEachNode(node => node.SetVisibility(enable));
             }
         }
-        
-        public void SetStatus(int statusIndex, int id, int timer)
+
+        public bool IsFull()
         {
-            if (statusIndex > NodePerGroupCount)
+            return _statusCount >= NodePerGroupCount;
+        }
+        
+        public void AddStatus(int id, int timer)
+        {
+            if (IsFull())
                 return;
 
-            StatusNodes[statusIndex].SetStatus(id, timer);
+            StatusNodes[_statusCount].SetStatus(id, timer);
+            _statusCount++;
         }
 
-        public void HideUnusedStatus(int statusCount)
+        public void HideUnusedNodes()
         {
-            if (statusCount > NodePerGroupCount)
-                statusCount = NodePerGroupCount;
-
-            for (int i = NodePerGroupCount - 1; i > statusCount - 1; i--)
+            for (int i = NodePerGroupCount - 1; i > _statusCount - 1; i--)
             {
                 StatusNodes[i].SetVisibility(false);
             }

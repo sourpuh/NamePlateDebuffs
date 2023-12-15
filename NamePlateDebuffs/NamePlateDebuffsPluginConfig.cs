@@ -24,7 +24,7 @@ namespace NamePlateDebuffs
         public int GroupY = 30;
         public int NodeSpacing = 3;
         public float Scale = 1;
-        public bool FillFromRight = true;
+        public bool FillFromRight = false;
 
         // Node
         public int IconX = 0;
@@ -54,7 +54,7 @@ namespace NamePlateDebuffs
             GroupY = 30;
             NodeSpacing = 3;
             Scale = 1;
-            FillFromRight = true;
+            FillFromRight = false;
 
             // Node
             IconX = 0;
