@@ -1,6 +1,4 @@
-﻿using Dalamud.Logging;
-using Dalamud.Plugin;
-using FFXIVClientStructs.FFXIV.Client.System.Memory;
+﻿using FFXIVClientStructs.FFXIV.Client.System.Memory;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace NamePlateDebuffs.StatusNode
@@ -40,9 +38,21 @@ namespace NamePlateDebuffs.StatusNode
                 CurrentIconId = id;
             }
 
+            string timerString;
+            if (timer > 120)
+            {
+                timer /= 60;
+                timerString = timer + "m";
+            }
+            else
+            {
+                timerString = "" + timer;
+            }
+
             if (timer != CurrentTimer)
             {
-                DurationNode->SetNumber(timer);
+                DurationNode->AtkResNode.ToggleVisibility(timer > 0);
+                DurationNode->SetText(timerString);
                 CurrentTimer = timer;
             }
         }
