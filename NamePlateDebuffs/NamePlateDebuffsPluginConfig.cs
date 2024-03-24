@@ -1,11 +1,7 @@
 ﻿using Dalamud.Configuration;
 using Dalamud.Plugin;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NamePlateDebuffs
 {
@@ -16,15 +12,19 @@ namespace NamePlateDebuffs
 
         // General
         public bool Enabled = true;
-        public bool PlayerDebuffs = false;
+        public bool ShowSelfDebuffsOnEnemies = true;
+        public bool ShowDebuffsOnSelf = true;
+        public bool ShowDebuffsOnOthers = true;
+        public bool HidePermanentStatuses = true;
         public int UpdateIntervalMillis = 100;
 
         // NodeGroup
+        public int MaximumStatuses = 8;
         public int GroupX = 27;
         public int GroupY = 30;
         public int NodeSpacing = 3;
         public float Scale = 1;
-        public bool FillFromRight = true;
+        public bool FillFromRight = false;
 
         // Node
         public int IconX = 0;
@@ -42,14 +42,19 @@ namespace NamePlateDebuffs
         {
             // General
             Enabled = true;
-            PlayerDebuffs = false;
+            ShowSelfDebuffsOnEnemies = true;
+            ShowDebuffsOnSelf = true;
+            ShowDebuffsOnOthers = true;
+            HidePermanentStatuses = true;
             UpdateIntervalMillis = 100;
 
             // NodeGroup
+            MaximumStatuses = 8;
             GroupX = 27;
             GroupY = 30;
             NodeSpacing = 3;
             Scale = 1;
+            FillFromRight = false;
 
             // Node
             IconX = 0;

@@ -1,7 +1,7 @@
-﻿using ImGuiNET;
+﻿using Dalamud.Interface.Windowing;
+using ImGuiNET;
 using System;
 using System.Numerics;
-using Dalamud.Interface.Windowing;
 
 namespace NamePlateDebuffs
 {
@@ -13,7 +13,7 @@ namespace NamePlateDebuffs
         {
             _plugin = p;
 
-            Size = new Vector2(500, 647);
+            Size = new Vector2(500, 800);
             SizeCondition = ImGuiCond.FirstUseEver;
         }
 
@@ -35,6 +35,10 @@ namespace NamePlateDebuffs
             if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 ImGui.Indent();
+                needSave |= ImGui.Checkbox("Show your debuffs on enemies", ref _plugin.Config.ShowSelfDebuffsOnEnemies);
+                needSave |= ImGui.Checkbox("Show debuffs on you", ref _plugin.Config.ShowDebuffsOnSelf);
+                needSave |= ImGui.Checkbox("Show debuffs on other players", ref _plugin.Config.ShowDebuffsOnOthers);
+                needSave |= ImGui.Checkbox("Hide permanent statuses", ref _plugin.Config.HidePermanentStatuses);
                 needSave |= ImGui.InputInt("Update Interval (ms)", ref _plugin.Config.UpdateIntervalMillis, 10);
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Interval between status updates in milliseconds");
@@ -44,6 +48,7 @@ namespace NamePlateDebuffs
             if (ImGui.CollapsingHeader("Node Group", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 ImGui.Indent();
+                needSave |= ImGui.SliderInt("Maximum Statuses per group", ref _plugin.Config.MaximumStatuses, 4, 10);
                 needSave |= ImGui.Checkbox("Fill From Right", ref _plugin.Config.FillFromRight);
                 needSave |= ImGui.SliderInt("X Offset", ref _plugin.Config.GroupX, -200, 200);
                 needSave |= ImGui.SliderInt("Y Offset", ref _plugin.Config.GroupY, -200, 200);
