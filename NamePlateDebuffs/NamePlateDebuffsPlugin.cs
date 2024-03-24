@@ -74,7 +74,9 @@ public class NamePlateDebuffsPlugin : IDalamudPlugin
         Service.ClientState.TerritoryChanged -= OnTerritoryChange;
         Service.CommandManager.RemoveHandler(CommandName);
 
-        this.WindowSystem.RemoveAllWindows();
+        WindowSystem.RemoveAllWindows();
+        Service.Interface.UiBuilder.Draw -= DrawUI;
+        Service.Interface.UiBuilder.OpenConfigUi -= OpenConfigUI;
         ConfigWindow.Dispose();
         Hooks.Dispose();
         StatusNodeManager.Dispose();
