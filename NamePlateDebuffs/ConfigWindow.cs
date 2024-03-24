@@ -29,7 +29,7 @@ public class ConfigWindow : Window, IDisposable
         ImGui.Text("While config is open, test nodes are displayed to help with configuration.");
         if (ImGui.Button("Reset Config to Defaults"))
         {
-            _plugin.Config.SetDefaults();
+            _plugin.Config.SetToDefaults();
             needSave = true;
         }
         if (ImGui.CollapsingHeader("General", ImGuiTreeNodeFlags.DefaultOpen))
