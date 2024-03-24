@@ -1,9 +1,8 @@
-﻿namespace NamePlateDebuffs
+﻿namespace NamePlateDebuffs;
+
+enum StatusCategory
 {
-    enum StatusCategory
-    {
-        None = 0,
-        Beneficial = 1,
-        Detrimental = 2,
-    }
+    None = 0,
+    Beneficial = 1,
+    Detrimental = 2,
 }

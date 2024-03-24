@@ -1,10 +1,9 @@
-﻿namespace NamePlateDebuffs
+﻿namespace NamePlateDebuffs;
+
+public enum NameplateKind : byte
 {
-    public enum NameplateKind : byte
-    {
-        Player = 0,
-        FriendlyNPC = 1,
-        Enemy = 3,
-        PlayerPet = 4,
-    }
+    Player = 0,
+    FriendlyNPC = 1,
+    Enemy = 3,
+    PlayerPet = 4,
 }
