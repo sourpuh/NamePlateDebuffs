@@ -1,9 +1,9 @@
 ﻿using Dalamud.Game.Command;
+using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Lumina.Excel.GeneratedSheets;
 using NamePlateDebuffs.StatusNode;
 using System.Collections.Generic;
-using Dalamud.Interface.Windowing;
 
 namespace NamePlateDebuffs;
 
@@ -11,7 +11,6 @@ public class NamePlateDebuffsPlugin : IDalamudPlugin
 {
     public string Name => "NamePlateDebuffs";
     private const string CommandName = "/npdebuffs";
-    public PluginAddressResolver Address { get; private set; } = null!;
     public StatusNodeManager StatusNodeManager { get; private set; } = null!;
     public static AddonNamePlateHooks Hooks { get; private set; } = null!;
     public WindowSystem WindowSystem = new("NameplateDebuffs");
@@ -26,9 +25,6 @@ public class NamePlateDebuffsPlugin : IDalamudPlugin
 
         Config = Service.Interface.GetPluginConfig() as NamePlateDebuffsPluginConfig ?? new NamePlateDebuffsPluginConfig();
         Config.Initialize(Service.Interface);
-
-        Address = new PluginAddressResolver();
-        Address.Setup(Service.SigScanner);
 
         StatusNodeManager = new StatusNodeManager(this);
 

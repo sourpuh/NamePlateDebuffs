@@ -1,4 +1,5 @@
-﻿using Dalamud.Hooking;
+﻿using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
@@ -10,16 +11,10 @@ namespace NamePlateDebuffs;
 
 public unsafe class AddonNamePlateHooks : IDisposable
 {
-    const int MAX_STATUSES_PER_GAMEOBJECT = 30;
+    const int MaxStatusesPerGameObject = 30;
     private readonly NamePlateDebuffsPlugin _plugin;
-
-    private delegate void AddonNamePlateFinalizePrototype(AddonNamePlate* thisPtr);
-    private Hook<AddonNamePlateFinalizePrototype> _hookAddonNamePlateFinalize;
-
-    private delegate void AddonNamePlateDrawPrototype(AddonNamePlate* thisPtr);
-    private Hook<AddonNamePlateDrawPrototype> _hookAddonNamePlateDraw;
-
     private readonly Stopwatch _lastUpdateTimer;
+    private bool _disposed;
 
     public AddonNamePlateHooks(NamePlateDebuffsPlugin p)
     {
@@ -28,21 +23,25 @@ public unsafe class AddonNamePlateHooks : IDisposable
         _lastUpdateTimer = new Stopwatch();
         _lastUpdateTimer.Start();
 
-        _hookAddonNamePlateFinalize = Service.Hook.HookFromAddress<AddonNamePlateFinalizePrototype>(_plugin.Address.AddonNamePlateFinalizeAddress, AddonNamePlateFinalizeDetour);
-        _hookAddonNamePlateDraw = Service.Hook.HookFromAddress<AddonNamePlateDrawPrototype>(_plugin.Address.AddonNamePlateDrawAddress, AddonNamePlateDrawDetour);
-
-        _hookAddonNamePlateFinalize.Enable();
-        _hookAddonNamePlateDraw.Enable();
+        Service.AddonLifecycle.RegisterListener(AddonEvent.PreDraw, "NamePlate", PreDrawHandler);
+        Service.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "NamePlate", PreFinalizeHandler);
+        _disposed = false;
     }
 
     public void Dispose()
     {
-        _hookAddonNamePlateFinalize.Dispose();
-        _hookAddonNamePlateDraw.Dispose();
+        Service.AddonLifecycle.UnregisterListener(AddonEvent.PreDraw, "NamePlate", PreDrawHandler);
+        Service.AddonLifecycle.UnregisterListener(AddonEvent.PreFinalize, "NamePlate", PreFinalizeHandler);
+        _disposed = true;
     }
 
-    public void AddonNamePlateDrawDetour(AddonNamePlate* thisPtr)
+    public void PreDrawHandler(AddonEvent type, AddonArgs args)
     {
+        if (_disposed)
+        {
+            Service.Log.Error("AddonNamePlateDraw called after dispose");
+        }
+
         if (!_plugin.Config.Enabled || _plugin.InPvp)
         {
             if (_lastUpdateTimer.IsRunning)
@@ -57,21 +56,19 @@ public unsafe class AddonNamePlateHooks : IDisposable
                 _plugin.StatusNodeManager.SetNamePlateAddonPointer(null);
             }
 
-            _hookAddonNamePlateDraw.Original(thisPtr);
             return;
         }
 
         _lastUpdateTimer.Start();
         if (_lastUpdateTimer.ElapsedMilliseconds < _plugin.Config.UpdateIntervalMillis)
         {
-            _hookAddonNamePlateDraw.Original(thisPtr);
             return;
         }
         _lastUpdateTimer.Restart();
 
-        if (!_plugin.StatusNodeManager.Built)
+        if (!_disposed && !_plugin.StatusNodeManager.Built)
         {
-            _plugin.StatusNodeManager.SetNamePlateAddonPointer(thisPtr);
+            _plugin.StatusNodeManager.SetNamePlateAddonPointer((AddonNamePlate*)args.Addon);
             if (!_plugin.StatusNodeManager.BuildNodes())
                 return;
         }
@@ -80,7 +77,6 @@ public unsafe class AddonNamePlateHooks : IDisposable
         if (localPlayerId is null)
         {
             _plugin.StatusNodeManager.ForEachGroup(group => group.SetVisibility(false, true));
-            _hookAddonNamePlateDraw.Original(thisPtr);
             return;
         }
         var framework = Framework.Instance();
@@ -93,8 +89,6 @@ public unsafe class AddonNamePlateHooks : IDisposable
             var npIndex = objectInfo->NamePlateIndex;
             UpdateNamePlate(objectInfo, objectInfo == targetObjectInfo);
         }
-
-        _hookAddonNamePlateDraw.Original(thisPtr);
     }
 
     private void UpdateNamePlate(UI3DModule.ObjectInfo* objectInfo, bool isTarget)
@@ -132,7 +126,7 @@ public unsafe class AddonNamePlateHooks : IDisposable
 
         var statusArray = (Status*)targetStatus.Status;
 
-        for (int j = 0; j < MAX_STATUSES_PER_GAMEOBJECT; j++)
+        for (int j = 0; j < MaxStatusesPerGameObject; j++)
         {
             Status status = statusArray[j];
             if (status.StatusID == 0) continue;
@@ -147,10 +141,9 @@ public unsafe class AddonNamePlateHooks : IDisposable
         _plugin.StatusNodeManager.HideUnusedNodes(npIndex);
     }
 
-    public void AddonNamePlateFinalizeDetour(AddonNamePlate* thisPtr)
+    public void PreFinalizeHandler(AddonEvent type, AddonArgs args)
     {
         _plugin.StatusNodeManager.DestroyNodes();
         _plugin.StatusNodeManager.SetNamePlateAddonPointer(null);
-        _hookAddonNamePlateFinalize.Original(thisPtr);
     }
 }
