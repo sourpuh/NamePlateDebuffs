@@ -39,7 +39,7 @@ public unsafe class AddonNamePlateHooks : IDisposable
     {
         if (_disposed)
         {
-            Service.Log.Error("AddonNamePlateDraw called after dispose");
+            return;
         }
 
         if (!_plugin.Config.Enabled || _plugin.InPvp)
@@ -66,7 +66,7 @@ public unsafe class AddonNamePlateHooks : IDisposable
         }
         _lastUpdateTimer.Restart();
 
-        if (!_disposed && !_plugin.StatusNodeManager.Built)
+        if (!_plugin.StatusNodeManager.Built)
         {
             _plugin.StatusNodeManager.SetNamePlateAddonPointer((AddonNamePlate*)args.Addon);
             if (!_plugin.StatusNodeManager.BuildNodes())
@@ -116,28 +116,25 @@ public unsafe class AddonNamePlateHooks : IDisposable
         }
 
         uint? localPlayerId = Service.ClientState.LocalPlayer?.ObjectId;
-        if (localPlayerId is null)
+        if (localPlayerId is not null)
         {
-            _plugin.StatusNodeManager.HideUnusedNodes(npIndex);
-            return;
-        }
-        bool nameplateIsLocalPlayer = objectInfo->GameObject->ObjectID == localPlayerId;
-        StatusManager targetStatus = ((BattleChara*)objectInfo->GameObject)->GetStatusManager[0];
+            bool nameplateIsLocalPlayer = objectInfo->GameObject->ObjectID == localPlayerId;
+            StatusManager targetStatus = ((BattleChara*)objectInfo->GameObject)->GetStatusManager[0];
 
-        var statusArray = (Status*)targetStatus.Status;
+            var statusArray = (Status*)targetStatus.Status;
 
-        for (int j = 0; j < MaxStatusesPerGameObject; j++)
-        {
-            Status status = statusArray[j];
-            if (status.StatusID == 0) continue;
-
-            bool sourceIsLocalPlayer = status.SourceID == localPlayerId;
-            if (!_plugin.StatusNodeManager.AddStatus(npIndex, kind, status, sourceIsLocalPlayer, nameplateIsLocalPlayer))
+            for (int j = 0; j < MaxStatusesPerGameObject; j++)
             {
-                break;
+                Status status = statusArray[j];
+                if (status.StatusID == 0) continue;
+
+                bool sourceIsLocalPlayer = status.SourceID == localPlayerId;
+                if (!_plugin.StatusNodeManager.AddStatus(npIndex, kind, status, sourceIsLocalPlayer, nameplateIsLocalPlayer))
+                {
+                    break;
+                }
             }
         }
-
         _plugin.StatusNodeManager.HideUnusedNodes(npIndex);
     }
 
