@@ -74,9 +74,9 @@ public class NamePlateDebuffsPluginConfig : IPluginConfiguration
         DurationEdgeColor = new Vector4(0, 0, 0, 1);
     }
 
-    [NonSerialized] private DalamudPluginInterface? _pluginInterface;
+    [NonSerialized] private IDalamudPluginInterface? _pluginInterface;
 
-    public void Initialize(DalamudPluginInterface pluginInterface)
+    public void Initialize(IDalamudPluginInterface pluginInterface)
     {
         _pluginInterface = pluginInterface;
     }

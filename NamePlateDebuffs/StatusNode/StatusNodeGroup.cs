@@ -38,7 +38,7 @@ public unsafe class StatusNodeGroup
         var rootNode = CreateRootNode();
         if (rootNode == null) return false;
         RootNode = rootNode;
-        RootNode->NodeID = baseNodeId;
+        RootNode->NodeId = baseNodeId;
 
         for (uint i = 0; i < NodePerGroupCount; i++)
         {
@@ -49,7 +49,7 @@ public unsafe class StatusNodeGroup
             }
         }
 
-        RootNode->ChildCount = (ushort) (NodePerGroupCount * 3);
+        RootNode->ChildCount = (ushort)(NodePerGroupCount * 3);
         RootNode->ChildNode = StatusNodes[0].RootNode;
         StatusNodes[0].RootNode->ParentNode = RootNode;
 
@@ -71,7 +71,7 @@ public unsafe class StatusNodeGroup
 
     public void DestroyNodes()
     {
-        foreach(StatusNode node in StatusNodes)
+        foreach (StatusNode node in StatusNodes)
         {
             node.DestroyNodes();
         }
@@ -93,8 +93,7 @@ public unsafe class StatusNodeGroup
     {
         RootNode->SetPositionShort((short)_plugin.Config.GroupX, (short)_plugin.Config.GroupY);
         RootNode->SetScale(_plugin.Config.Scale, _plugin.Config.Scale);
-        
-        RootNode->SetWidth((ushort) (StatusNodes[0].RootNode->Width * NodePerGroupCount + _plugin.Config.NodeSpacing * (NodePerGroupCount - 1)));
+        RootNode->SetWidth((ushort)(StatusNodes[0].RootNode->Width * NodePerGroupCount + _plugin.Config.NodeSpacing * (NodePerGroupCount - 1)));
         RootNode->SetHeight(StatusNodes[0].RootNode->Height);
 
         for (int i = 0; i < NodePerGroupCount; i++)
@@ -121,8 +120,8 @@ public unsafe class StatusNodeGroup
     {
         return _statusCount >= NodePerGroupCount;
     }
-    
-    public void AddStatus(int id, int timer)
+
+    public void AddStatus(uint id, int timer)
     {
         if (IsFull())
             return;
@@ -141,7 +140,7 @@ public unsafe class StatusNodeGroup
 
     public void SetupVisibility()
     {
-        foreach(StatusNode node in StatusNodes)
+        foreach (StatusNode node in StatusNodes)
         {
             node.IconNode->AtkResNode.ToggleVisibility(true);
             node.DurationNode->AtkResNode.ToggleVisibility(true);

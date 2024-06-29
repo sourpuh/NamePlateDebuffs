@@ -14,7 +14,6 @@ public unsafe class AddonNamePlateHooks : IDisposable
     const int MaxStatusesPerGameObject = 30;
     private readonly NamePlateDebuffsPlugin _plugin;
     private readonly Stopwatch _lastUpdateTimer;
-    private bool _disposed;
 
     public AddonNamePlateHooks(NamePlateDebuffsPlugin p)
     {
@@ -25,23 +24,16 @@ public unsafe class AddonNamePlateHooks : IDisposable
 
         Service.AddonLifecycle.RegisterListener(AddonEvent.PreDraw, "NamePlate", PreDrawHandler);
         Service.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "NamePlate", PreFinalizeHandler);
-        _disposed = false;
     }
 
     public void Dispose()
     {
         Service.AddonLifecycle.UnregisterListener(AddonEvent.PreDraw, "NamePlate", PreDrawHandler);
         Service.AddonLifecycle.UnregisterListener(AddonEvent.PreFinalize, "NamePlate", PreFinalizeHandler);
-        _disposed = true;
     }
 
     public void PreDrawHandler(AddonEvent type, AddonArgs args)
     {
-        if (_disposed)
-        {
-            return;
-        }
-
         if (!_plugin.Config.Enabled || _plugin.InPvp)
         {
             if (_lastUpdateTimer.IsRunning)
@@ -73,21 +65,25 @@ public unsafe class AddonNamePlateHooks : IDisposable
                 return;
         }
 
-        uint? localPlayerId = Service.ClientState.LocalPlayer?.ObjectId;
-        if (localPlayerId is null)
+        var localPlayer = Service.ClientState.LocalPlayer;
+        if (localPlayer is null)
         {
             _plugin.StatusNodeManager.ForEachGroup(group => group.SetVisibility(false, true));
             return;
         }
         var framework = Framework.Instance();
-        var ui3DModule = framework->GetUiModule()->GetUI3DModule();
-        var targetObjectInfo = ui3DModule->TargetObjectInfo;
+        var ui3DModule = framework->GetUIModule()->GetUI3DModule();
+        var targetIndex = -1;
+        if (ui3DModule->TargetObjectInfo != null)
+        {
+            targetIndex = ui3DModule->TargetObjectInfo->NamePlateIndex;
+        }
 
         for (int i = 0; i < ui3DModule->NamePlateObjectInfoCount; i++)
         {
-            var objectInfo = ((UI3DModule.ObjectInfo**)ui3DModule->NamePlateObjectInfoPointerArray)[i];
+            var objectInfo = ui3DModule->NamePlateObjectInfoPointers[i].Value;
             var npIndex = objectInfo->NamePlateIndex;
-            UpdateNamePlate(objectInfo, objectInfo == targetObjectInfo);
+            UpdateNamePlate(objectInfo, targetIndex == npIndex);
         }
     }
 
@@ -115,20 +111,20 @@ public unsafe class AddonNamePlateHooks : IDisposable
             return;
         }
 
-        uint? localPlayerId = Service.ClientState.LocalPlayer?.ObjectId;
+        ulong? localPlayerId = Service.ClientState.LocalPlayer?.GameObjectId;
         if (localPlayerId is not null)
         {
-            bool nameplateIsLocalPlayer = objectInfo->GameObject->ObjectID == localPlayerId;
-            StatusManager targetStatus = ((BattleChara*)objectInfo->GameObject)->GetStatusManager[0];
+            bool nameplateIsLocalPlayer = objectInfo->GameObject->GetGameObjectId() == localPlayerId;
+            StatusManager* targetStatus = ((BattleChara*)objectInfo->GameObject)->GetStatusManager();
 
-            var statusArray = (Status*)targetStatus.Status;
+            var statusArray = targetStatus->Status;
 
             for (int j = 0; j < MaxStatusesPerGameObject; j++)
             {
                 Status status = statusArray[j];
-                if (status.StatusID == 0) continue;
+                if (status.StatusId == 0) continue;
 
-                bool sourceIsLocalPlayer = status.SourceID == localPlayerId;
+                bool sourceIsLocalPlayer = status.SourceId == localPlayerId;
                 if (!_plugin.StatusNodeManager.AddStatus(npIndex, kind, status, sourceIsLocalPlayer, nameplateIsLocalPlayer))
                 {
                     break;

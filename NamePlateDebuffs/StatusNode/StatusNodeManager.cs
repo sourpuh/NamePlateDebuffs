@@ -44,7 +44,7 @@ public unsafe class StatusNodeManager : IDisposable
 
     public void ForEachGroup(Action<StatusNodeGroup> func)
     {
-        foreach(StatusNodeGroup? group in NodeGroups)
+        foreach (StatusNodeGroup? group in NodeGroups)
             if (group is not null)
                 func(group);
     }
@@ -75,7 +75,7 @@ public unsafe class StatusNodeManager : IDisposable
 
     private bool ShouldIgnoreStatus(NameplateKind kind, StatusSheet info, bool sourceIsLocalPlayer, bool nameplateIsLocalPlayer)
     {
-        StatusCategory category = (StatusCategory) info.StatusCategory;
+        StatusCategory category = (StatusCategory)info.StatusCategory;
         switch (kind)
         {
             case NameplateKind.Enemy:
@@ -97,19 +97,19 @@ public unsafe class StatusNodeManager : IDisposable
         if (group is null) return true;
         if (group.IsFull()) return false;
 
-        StatusSheet? info = StatusSheet?.GetRow(status.StatusID);
+        StatusSheet? info = StatusSheet?.GetRow(status.StatusId);
         if (info is null) return true;
         if (_plugin.Config.HidePermanentStatuses && info.IsPermanent) return true;
         if (ShouldIgnoreStatus(kind, info, sourceIsLocalPlayer, nameplateIsLocalPlayer)) return true;
 
-        int iconId = (int) info.Icon;
+        uint iconId = info.Icon;
         // Some statuses have fake stack counts and need to be clamped to safe values.
         // For example, Bloodwhetting has StackCount 144 with MaxStacks 0.
-        int stackCount = Math.Clamp(status.StackCount, (byte)0, info.MaxStacks);
+        uint stackCount = Math.Clamp(status.StackCount, (byte)0, info.MaxStacks);
         if (stackCount > 0)
             iconId += stackCount - 1;
 
-        group.AddStatus(iconId, (int) status.RemainingTime);
+        group.AddStatus(iconId, (int)status.RemainingTime);
         return true;
     }
 
@@ -153,7 +153,7 @@ public unsafe class StatusNodeManager : IDisposable
         if (Built && !rebuild) return true;
         if (rebuild) DestroyNodes();
 
-        for(byte i = 0; i < NamePlateCount; i++)
+        for (byte i = 0; i < NamePlateCount; i++)
         {
             StatusNodeGroup nodeGroup = new StatusNodeGroup(_plugin);
             var npObj = &namePlateAddon->NamePlateObjectArray[i];
@@ -169,7 +169,7 @@ public unsafe class StatusNodeManager : IDisposable
 
             lastChild->PrevSiblingNode = nodeGroup.RootNode;
             nodeGroup.RootNode->NextSiblingNode = lastChild;
-            nodeGroup.RootNode->ParentNode = (AtkResNode*) npObj->RootNode;
+            nodeGroup.RootNode->ParentNode = (AtkResNode*)npObj->RootNode;
 
             npComponent->UldManager.UpdateDrawNodeList();
 
@@ -185,7 +185,7 @@ public unsafe class StatusNodeManager : IDisposable
     {
         if (namePlateAddon == null) return;
 
-        for(byte i = 0; i < NamePlateCount; i++)
+        for (byte i = 0; i < NamePlateCount; i++)
         {
             var npObj = &namePlateAddon->NamePlateObjectArray[i];
             var npComponent = npObj->RootNode->Component;

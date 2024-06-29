@@ -2,10 +2,9 @@
 
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="Dalamud.Plugin.Bootstrap.targets"/>
-
   <PropertyGroup>
     <PackageId>NamePlateDebuffs</PackageId>
-    <Version>1.1.0.1</Version>
+    <Version>1.1.0.2</Version>
     <Authors>aers, JHerig, squidmade, sourpuh</Authors>
     <PackageProjectUrl>https://github.com/sourpuh/NamePlateDebuffs</PackageProjectUrl>
   </PropertyGroup>

@@ -19,7 +19,7 @@ public class NamePlateDebuffsPlugin : IDalamudPlugin
 
     internal bool InPvp;
 
-    public NamePlateDebuffsPlugin(DalamudPluginInterface pluginInterface)
+    public NamePlateDebuffsPlugin(IDalamudPluginInterface pluginInterface)
     {
         Service.Initialize(pluginInterface);
 

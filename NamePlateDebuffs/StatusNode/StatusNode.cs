@@ -12,10 +12,10 @@ public unsafe class StatusNode
     public AtkTextNode* DurationNode { get; private set; }
     public bool Visible { get; private set; }
 
-    public const int DefaultBuffId = 10205;
-    public const int DefaultDebuffId = 016754;
+    public const uint DefaultBuffId = 10205;
+    public const uint DefaultDebuffId = 016754;
 
-    private int CurrentIconId = DefaultDebuffId;
+    private uint CurrentIconId = DefaultDebuffId;
     private int CurrentTimer = 60;
 
     public StatusNode(NamePlateDebuffsPlugin p)
@@ -28,7 +28,7 @@ public unsafe class StatusNode
         RootNode->ToggleVisibility(enable);
     }
 
-    public void SetStatus(int id, int timer)
+    public void SetStatus(uint id, int timer)
     {
         SetVisibility(true);
 
@@ -65,7 +65,7 @@ public unsafe class StatusNode
         IconNode->AtkResNode.SetHeight((ushort)_plugin.Config.IconHeight);
         IconNode->AtkResNode.SetWidth((ushort)_plugin.Config.IconWidth);
         DurationNode->AtkResNode.SetPositionShort((short)_plugin.Config.DurationX, (short)_plugin.Config.DurationY);
-        DurationNode->FontSize = (byte) _plugin.Config.FontSize;
+        DurationNode->FontSize = (byte)_plugin.Config.FontSize;
         ushort outWidth = 0;
         ushort outHeight = 0;
         DurationNode->GetTextDrawSize(&outWidth, &outHeight);
@@ -115,15 +115,15 @@ public unsafe class StatusNode
         }
         DurationNode = durationNode;
 
-        RootNode->NodeID = baseNodeId;
+        RootNode->NodeId = baseNodeId;
         RootNode->ChildCount = 2;
-        RootNode->ChildNode = (AtkResNode*) IconNode;
+        RootNode->ChildNode = (AtkResNode*)IconNode;
 
-        IconNode->AtkResNode.NodeID = baseNodeId + 1;
+        IconNode->AtkResNode.NodeId = baseNodeId + 1;
         IconNode->AtkResNode.ParentNode = RootNode;
         IconNode->AtkResNode.PrevSiblingNode = (AtkResNode*)DurationNode;
 
-        DurationNode->AtkResNode.NodeID = baseNodeId + 2;
+        DurationNode->AtkResNode.NodeId = baseNodeId + 2;
         DurationNode->AtkResNode.ParentNode = RootNode;
         DurationNode->AtkResNode.NextSiblingNode = (AtkResNode*)IconNode;
 
@@ -176,7 +176,7 @@ public unsafe class StatusNode
 
     private AtkImageNode* CreateIconNode()
     {
-        var newImageNode = (AtkImageNode*)IMemorySpace.GetUISpace()->Malloc((ulong)sizeof(AtkImageNode), 8);
+        var newImageNode = IMemorySpace.GetUISpace()->Create<AtkImageNode>();
         if (newImageNode == null)
         {
             Service.Log.Debug("Failed to allocate memory for image node");
