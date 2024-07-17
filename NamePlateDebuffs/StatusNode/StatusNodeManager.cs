@@ -162,14 +162,14 @@ public unsafe class StatusNodeManager : IDisposable
                 DestroyNodes();
                 return false;
             }
-            var npComponent = npObj->RootNode->Component;
+            var npComponent = npObj->RootComponentNode->Component;
 
             var lastChild = npComponent->UldManager.RootNode;
             while (lastChild->PrevSiblingNode != null) lastChild = lastChild->PrevSiblingNode;
 
             lastChild->PrevSiblingNode = nodeGroup.RootNode;
             nodeGroup.RootNode->NextSiblingNode = lastChild;
-            nodeGroup.RootNode->ParentNode = (AtkResNode*)npObj->RootNode;
+            nodeGroup.RootNode->ParentNode = (AtkResNode*)npObj->RootComponentNode;
 
             npComponent->UldManager.UpdateDrawNodeList();
 
@@ -188,7 +188,7 @@ public unsafe class StatusNodeManager : IDisposable
         for (byte i = 0; i < NamePlateCount; i++)
         {
             var npObj = &namePlateAddon->NamePlateObjectArray[i];
-            var npComponent = npObj->RootNode->Component;
+            var npComponent = npObj->RootComponentNode->Component;
 
             if (NodeGroups[i] is not null)
             {
