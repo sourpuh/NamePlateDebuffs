@@ -4,7 +4,7 @@ using Lumina.Excel;
 using System;
 
 using Status = FFXIVClientStructs.FFXIV.Client.Game.Status;
-using StatusSheet = Lumina.Excel.GeneratedSheets.Status;
+using StatusSheet = Lumina.Excel.Sheets.Status;
 
 namespace NamePlateDebuffs.StatusNode;
 
@@ -16,7 +16,7 @@ public unsafe class StatusNodeManager : IDisposable
 
     private StatusNodeGroup?[] NodeGroups;
 
-    private ExcelSheet<StatusSheet>? StatusSheet;
+    private ExcelSheet<StatusSheet> StatusSheet;
 
     private const int NamePlateCount = 50;
     private const uint StartingNodeId = 50000;
@@ -97,8 +97,7 @@ public unsafe class StatusNodeManager : IDisposable
         if (group is null) return true;
         if (group.IsFull()) return false;
 
-        StatusSheet? info = StatusSheet?.GetRow(status.StatusId);
-        if (info is null) return true;
+        StatusSheet info = StatusSheet.GetRow(status.StatusId);
         if (_plugin.Config.HidePermanentStatuses && info.IsPermanent) return true;
         if (ShouldIgnoreStatus(kind, info, sourceIsLocalPlayer, nameplateIsLocalPlayer)) return true;
 

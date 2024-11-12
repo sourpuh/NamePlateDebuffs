@@ -12,8 +12,8 @@ public unsafe class StatusNode
     public AtkTextNode* DurationNode { get; private set; }
     public bool Visible { get; private set; }
 
-    public const uint DefaultBuffId = 10205;
-    public const uint DefaultDebuffId = 016754;
+    public const uint DefaultBuffId = 210205;
+    public const uint DefaultDebuffId = 215309;
 
     private uint CurrentIconId = DefaultDebuffId;
     private int CurrentTimer = 60;

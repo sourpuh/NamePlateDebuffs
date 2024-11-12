@@ -1,7 +1,7 @@
 ﻿using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using NamePlateDebuffs.StatusNode;
 using System.Collections.Generic;
 
@@ -82,8 +82,8 @@ public class NamePlateDebuffsPlugin : IDalamudPlugin
     {
         try
         {
-            TerritoryType? territory = Service.DataManager.GetExcelSheet<TerritoryType>()?.GetRow(e);
-            if (territory is not null) InPvp = territory.IsPvpZone;
+            TerritoryType territory = Service.DataManager.GetExcelSheet<TerritoryType>().GetRow(e);
+            InPvp = territory.IsPvpZone;
         }
         catch (KeyNotFoundException)
         {
