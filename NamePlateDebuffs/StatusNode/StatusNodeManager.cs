@@ -102,11 +102,11 @@ public unsafe class StatusNodeManager : IDisposable
         if (ShouldIgnoreStatus(kind, info, sourceIsLocalPlayer, nameplateIsLocalPlayer)) return true;
 
         uint iconId = info.Icon;
-        // Some statuses have fake stack counts and need to be clamped to safe values.
-        // For example, Bloodwhetting has StackCount 144 with MaxStacks 0.
-        uint stackCount = Math.Clamp(status.StackCount, (byte)0, info.MaxStacks);
-        if (stackCount > 0)
+        if (info.MaxStacks > 0)
+        {
+            var stackCount = (uint)(0xFF & status.Param);
             iconId += stackCount - 1;
+        }
 
         group.AddStatus(iconId, (int)status.RemainingTime);
         return true;

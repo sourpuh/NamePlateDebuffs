@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<Project Sdk="Dalamud.NET.Sdk/11.0.0">
+<Project Sdk="Dalamud.NET.Sdk/12.0.2">
   <PropertyGroup>
     <PackageId>NamePlateDebuffs</PackageId>
-    <Version>1.1.0.4</Version>
+    <Version>1.1.0.5</Version>
     <Authors>aers, JHerig, squidmade, sourpuh</Authors>
     <PackageProjectUrl>https://github.com/sourpuh/NamePlateDebuffs</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
     <Platforms>x64</Platforms>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
