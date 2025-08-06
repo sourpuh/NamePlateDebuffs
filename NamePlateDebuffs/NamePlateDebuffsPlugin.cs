@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.Command;
+﻿global using Dalamud.Bindings.ImGui;
+using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Lumina.Excel.Sheets;

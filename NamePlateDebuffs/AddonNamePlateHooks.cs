@@ -60,7 +60,7 @@ public unsafe class AddonNamePlateHooks : IDisposable
 
         if (!_plugin.StatusNodeManager.Built)
         {
-            _plugin.StatusNodeManager.SetNamePlateAddonPointer((AddonNamePlate*)args.Addon);
+            _plugin.StatusNodeManager.SetNamePlateAddonPointer((AddonNamePlate*)args.Addon.Address);
             if (!_plugin.StatusNodeManager.BuildNodes())
                 return;
         }
@@ -124,7 +124,7 @@ public unsafe class AddonNamePlateHooks : IDisposable
                 Status status = statusArray[j];
                 if (status.StatusId == 0) continue;
 
-                bool sourceIsLocalPlayer = status.SourceId == localPlayerId;
+                bool sourceIsLocalPlayer = status.SourceObject.ObjectId == localPlayerId;
                 if (!_plugin.StatusNodeManager.AddStatus(npIndex, kind, status, sourceIsLocalPlayer, nameplateIsLocalPlayer))
                 {
                     break;
