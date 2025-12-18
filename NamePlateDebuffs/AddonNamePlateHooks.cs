@@ -65,7 +65,7 @@ public unsafe class AddonNamePlateHooks : IDisposable
                 return;
         }
 
-        var localPlayer = Service.ClientState.LocalPlayer;
+        var localPlayer = Service.ObjectTable.LocalPlayer;
         if (localPlayer is null)
         {
             _plugin.StatusNodeManager.ForEachGroup(group => group.SetVisibility(false, true));
@@ -111,7 +111,7 @@ public unsafe class AddonNamePlateHooks : IDisposable
             return;
         }
 
-        ulong? localPlayerId = Service.ClientState.LocalPlayer?.GameObjectId;
+        ulong? localPlayerId = Service.ObjectTable.LocalPlayer?.GameObjectId;
         if (localPlayerId is not null)
         {
             bool nameplateIsLocalPlayer = objectInfo->GameObject->GetGameObjectId() == localPlayerId;

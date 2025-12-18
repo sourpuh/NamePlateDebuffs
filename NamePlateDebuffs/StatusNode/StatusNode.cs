@@ -190,7 +190,7 @@ public unsafe class StatusNode
         newImageNode->AtkResNode.DrawFlags = 0;
 
         newImageNode->WrapMode = 1;
-        newImageNode->Flags |= (byte)ImageNodeFlags.AutoFit;
+        newImageNode->Flags |= ImageNodeFlags.AutoFit;
 
         var partsList = (AtkUldPartsList*)IMemorySpace.GetUISpace()->Malloc((ulong)sizeof(AtkUldPartsList), 8);
         if (partsList == null)
