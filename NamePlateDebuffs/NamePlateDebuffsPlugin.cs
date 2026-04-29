@@ -79,7 +79,7 @@ public class NamePlateDebuffsPlugin : IDalamudPlugin
         StatusNodeManager.Dispose();
     }
 
-    private void OnTerritoryChange(ushort e)
+    private void OnTerritoryChange(uint e)
     {
         try
         {
