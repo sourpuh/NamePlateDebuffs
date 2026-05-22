@@ -12,11 +12,8 @@ public unsafe class StatusNode
     public AtkTextNode* DurationNode { get; private set; }
     public bool Visible { get; private set; }
 
-    public const uint DefaultBuffId = 210205;
-    public const uint DefaultDebuffId = 215309;
-
-    private uint CurrentIconId = DefaultDebuffId;
-    private int CurrentTimer = 60;
+    private uint CurrentIconId = NpdStatusInfo.Buff.IconId;
+    private int PrevSecondsRemaining = 60;
 
     public StatusNode(NamePlateDebuffsPlugin p)
     {
@@ -28,32 +25,50 @@ public unsafe class StatusNode
         RootNode->ToggleVisibility(enable);
     }
 
-    public void SetStatus(uint id, int timer)
+    public void SetStatus(uint iconId, int secondsRemaining, bool sourceIsLocalPlayer)
     {
         SetVisibility(true);
 
-        if (id != CurrentIconId)
+        if (iconId != CurrentIconId)
         {
-            IconNode->LoadIconTexture(id, 0);
-            CurrentIconId = id;
+            IconNode->LoadIconTexture(iconId, 0);
+            CurrentIconId = iconId;
         }
 
-        string timerString;
-        if (timer > 120)
+        string timeString;
+        if (secondsRemaining > 120)
         {
-            timer /= 60;
-            timerString = timer + "m";
+            if (secondsRemaining > 3600)
+            {
+                secondsRemaining /= 3600;
+                timeString = secondsRemaining + "h";
+            }
+            else
+            {
+                secondsRemaining /= 60;
+                timeString = secondsRemaining + ""; // tiny 'm' unicode
+            }
         }
         else
         {
-            timerString = "" + timer;
+            timeString = "" + secondsRemaining;
         }
 
-        if (timer != CurrentTimer)
+        bool isTextVisible = secondsRemaining > 0;
+        DurationNode->AtkResNode.ToggleVisibility(isTextVisible);
+        if (isTextVisible)
         {
-            DurationNode->AtkResNode.ToggleVisibility(timer > 0);
-            DurationNode->SetText(timerString);
-            CurrentTimer = timer;
+            DurationNode->SetText(timeString);
+            if (sourceIsLocalPlayer)
+            {
+                DurationNode->TextColor = _plugin.Config.SelfDurationTextColor.ToByteColor();
+                DurationNode->EdgeColor = _plugin.Config.SelfDurationEdgeColor.ToByteColor();
+            }
+            else
+            {
+                DurationNode->TextColor = _plugin.Config.DurationTextColor.ToByteColor();
+                DurationNode->EdgeColor = _plugin.Config.DurationEdgeColor.ToByteColor();
+            }
         }
     }
 
@@ -61,32 +76,20 @@ public unsafe class StatusNode
     {
         if (!Built()) return;
 
-        IconNode->AtkResNode.SetPositionShort((short)_plugin.Config.IconX, (short)_plugin.Config.IconY);
-        IconNode->AtkResNode.SetHeight((ushort)_plugin.Config.IconHeight);
-        IconNode->AtkResNode.SetWidth((ushort)_plugin.Config.IconWidth);
-        DurationNode->AtkResNode.SetPositionShort((short)_plugin.Config.DurationX, (short)_plugin.Config.DurationY);
+        var iconWidth = (ushort)_plugin.Config.IconSize.X;
+        var iconHeight = (ushort)_plugin.Config.IconSize.Y;
+        IconNode->AtkResNode.SetPositionShort((short)_plugin.Config.IconOffset.X, (short)_plugin.Config.IconOffset.Y);
+        IconNode->AtkResNode.SetWidth(iconWidth);
+        IconNode->AtkResNode.SetHeight(iconHeight);
+
         DurationNode->FontSize = (byte)_plugin.Config.FontSize;
         ushort outWidth = 0;
         ushort outHeight = 0;
         DurationNode->GetTextDrawSize(&outWidth, &outHeight);
-        DurationNode->AtkResNode.SetWidth((ushort)(outWidth + 2 * _plugin.Config.DurationPadding));
-        DurationNode->AtkResNode.SetHeight((ushort)(outHeight + 2 * _plugin.Config.DurationPadding));
-
-        ushort iconHeight = (ushort)(_plugin.Config.IconY + _plugin.Config.IconHeight);
-        ushort durationHeight = (ushort)(_plugin.Config.DurationY + DurationNode->AtkResNode.Height);
-
-        RootNode->SetHeight(durationHeight > iconHeight ? durationHeight : iconHeight);
-        RootNode->SetWidth((ushort)(DurationNode->AtkResNode.Width > _plugin.Config.IconWidth ? DurationNode->AtkResNode.Width : _plugin.Config.IconWidth));
-
-        DurationNode->TextColor.R = (byte)(_plugin.Config.DurationTextColor.X * 255);
-        DurationNode->TextColor.G = (byte)(_plugin.Config.DurationTextColor.Y * 255);
-        DurationNode->TextColor.B = (byte)(_plugin.Config.DurationTextColor.Z * 255);
-        DurationNode->TextColor.A = (byte)(_plugin.Config.DurationTextColor.W * 255);
-
-        DurationNode->EdgeColor.R = (byte)(_plugin.Config.DurationEdgeColor.X * 255);
-        DurationNode->EdgeColor.G = (byte)(_plugin.Config.DurationEdgeColor.Y * 255);
-        DurationNode->EdgeColor.B = (byte)(_plugin.Config.DurationEdgeColor.Z * 255);
-        DurationNode->EdgeColor.A = (byte)(_plugin.Config.DurationEdgeColor.W * 255);
+        DurationNode->AtkResNode.SetPositionShort((short)_plugin.Config.DurationOffset.X, (short)(iconHeight + _plugin.Config.DurationOffset.Y));
+        DurationNode->AtkResNode.SetWidth(iconWidth);
+        DurationNode->AtkResNode.SetHeight(outHeight);
+        RootNode->SetWidth(iconWidth);
     }
 
     public bool Built() => RootNode != null && IconNode != null && DurationNode != null;
@@ -234,7 +237,7 @@ public unsafe class StatusNode
 
         newImageNode->PartsList = partsList;
 
-        newImageNode->LoadIconTexture(DefaultDebuffId, 0);
+        newImageNode->LoadIconTexture(CurrentIconId, 0);
 
         return newImageNode;
     }

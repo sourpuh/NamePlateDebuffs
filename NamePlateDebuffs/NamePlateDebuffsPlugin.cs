@@ -17,7 +17,9 @@ public class NamePlateDebuffsPlugin : IDalamudPlugin
     public WindowSystem WindowSystem = new("NameplateDebuffs");
     public ConfigWindow ConfigWindow { get; init; }
     public NamePlateDebuffsPluginConfig Config { get; private set; } = null!;
+    public MoodlesManager MoodlesManager { get; private set; } = null!;
 
+    public bool ShowTestStatuses = true;
     internal bool InPvp;
 
     public NamePlateDebuffsPlugin(IDalamudPluginInterface pluginInterface)
@@ -27,8 +29,8 @@ public class NamePlateDebuffsPlugin : IDalamudPlugin
         Config = Service.Interface.GetPluginConfig() as NamePlateDebuffsPluginConfig ?? new NamePlateDebuffsPluginConfig();
         Config.Initialize(Service.Interface);
 
+        MoodlesManager = new MoodlesManager(pluginInterface);
         StatusNodeManager = new StatusNodeManager(this);
-
         Hooks = new AddonNamePlateHooks(this);
 
         ConfigWindow = new ConfigWindow(this);

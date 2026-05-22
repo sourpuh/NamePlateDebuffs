@@ -1,10 +1,6 @@
 ﻿using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
-using Lumina.Excel;
 using System;
-
-using Status = FFXIVClientStructs.FFXIV.Client.Game.Status;
-using StatusSheet = Lumina.Excel.Sheets.Status;
 
 namespace NamePlateDebuffs.StatusNode;
 
@@ -16,8 +12,6 @@ public unsafe class StatusNodeManager : IDisposable
 
     private StatusNodeGroup?[] NodeGroups;
 
-    private ExcelSheet<StatusSheet> StatusSheet;
-
     private const int NamePlateCount = 50;
     private const uint StartingNodeId = 50000;
 
@@ -26,10 +20,7 @@ public unsafe class StatusNodeManager : IDisposable
     internal StatusNodeManager(NamePlateDebuffsPlugin p)
     {
         _plugin = p;
-
         NodeGroups = new StatusNodeGroup[NamePlateCount];
-
-        StatusSheet = Service.DataManager.GetExcelSheet<StatusSheet>()!;
     }
 
     public void Dispose()
@@ -73,42 +64,12 @@ public unsafe class StatusNodeManager : IDisposable
         group?.SetVisibility(enable, setChildren);
     }
 
-    private bool ShouldIgnoreStatus(NameplateKind kind, StatusSheet info, bool sourceIsLocalPlayer, bool nameplateIsLocalPlayer)
-    {
-        StatusCategory category = (StatusCategory)info.StatusCategory;
-        switch (kind)
-        {
-            case NameplateKind.Enemy:
-                if (_plugin.Config.ShowSelfDebuffsOnEnemies && sourceIsLocalPlayer) return false;
-                break;
-            case NameplateKind.Player:
-                if (_plugin.Config.ShowDebuffsOnSelf && nameplateIsLocalPlayer && category == StatusCategory.Detrimental) return false;
-                if (_plugin.Config.ShowDebuffsOnOthers && !nameplateIsLocalPlayer && category == StatusCategory.Detrimental) return false;
-                break;
-        }
-        return true;
-    }
-
     // Return true if status was added or ignored, false if full.
-    public bool AddStatus(int groupIndex, NameplateKind kind, Status status, bool sourceIsLocalPlayer, bool nameplateIsLocalPlayer)
+    public bool AddStatus(int groupIndex, NameplateKind kind, NpdStatus status)
     {
         StatusNodeGroup? group = NodeGroups[groupIndex];
-
-        if (group is null) return true;
-        if (group.IsFull()) return false;
-
-        StatusSheet info = StatusSheet.GetRow(status.StatusId);
-        if (_plugin.Config.HidePermanentStatuses && info.IsPermanent) return true;
-        if (ShouldIgnoreStatus(kind, info, sourceIsLocalPlayer, nameplateIsLocalPlayer)) return true;
-
-        uint iconId = info.Icon;
-        if (info.MaxStacks > 0)
-        {
-            var stackCount = (uint)(0xFF & status.Param);
-            iconId += stackCount - 1;
-        }
-
-        group.AddStatus(iconId, (int)status.RemainingTime);
+        if (group is null || group.IsFull()) return false;
+        group.AddStatus(status.IconId, status.RoundedSecondsRemaining, status.SourceIsLocalPlayer);
         return true;
     }
 
@@ -142,8 +103,8 @@ public unsafe class StatusNodeManager : IDisposable
             StatusNodeGroup.NodePerGroupCount = (ushort)_plugin.Config.MaximumStatuses;
             BuildNodes(/*rebuild=*/true);
         }
-        ForEachGroup(group => group.LoadConfig());
         ForEachNode(node => node.LoadConfig());
+        ForEachGroup(group => group.LoadConfig());
     }
 
     public bool BuildNodes(bool rebuild = false)

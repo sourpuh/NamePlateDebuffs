@@ -2,7 +2,7 @@
     "Name": "Nameplate Debuffs",
     "InternalName": "NamePlateDebuffs",
     "Author": "aers, JHerig, squidmade, sourpuh",
-    "Description": "Displays debuffs on nameplates.",
+    "Description": "Displays your debuffs on enemy nameplates, and provides config to display debuffs, buffs, and special statuses on player nameplates.",
     "RepoUrl": "https://github.com/sourpuh/NamePlateDebuffs",
-    "Punchline": "Displays debuffs on enemy and player nameplates"
+    "Punchline": "Displays debuffs (and more) on nameplates."
 }

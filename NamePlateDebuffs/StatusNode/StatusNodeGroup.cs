@@ -91,7 +91,7 @@ public unsafe class StatusNodeGroup
 
     public void LoadConfig()
     {
-        RootNode->SetPositionShort((short)_plugin.Config.GroupX, (short)_plugin.Config.GroupY);
+        RootNode->SetPositionShort((short)_plugin.Config.GroupOffset.X, (short)_plugin.Config.GroupOffset.Y);
         RootNode->SetScale(_plugin.Config.Scale, _plugin.Config.Scale);
         RootNode->SetWidth((ushort)(StatusNodes[0].RootNode->Width * NodePerGroupCount + _plugin.Config.NodeSpacing * (NodePerGroupCount - 1)));
         RootNode->SetHeight(StatusNodes[0].RootNode->Height);
@@ -121,12 +121,12 @@ public unsafe class StatusNodeGroup
         return _statusCount >= NodePerGroupCount;
     }
 
-    public void AddStatus(uint id, int timer)
+    public void AddStatus(uint iconId, int secondRemaining, bool sourceIsLocalPlayer)
     {
         if (IsFull())
             return;
 
-        StatusNodes[_statusCount].SetStatus(id, timer);
+        StatusNodes[_statusCount].SetStatus(iconId, secondRemaining, sourceIsLocalPlayer);
         _statusCount++;
     }
 

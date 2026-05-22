@@ -4,19 +4,28 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using Lumina.Excel;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using static FFXIVClientStructs.FFXIV.Client.UI.UI3DModule;
+using StatusSheet = Lumina.Excel.Sheets.Status;
+using StatusInfo = Lumina.Excel.Sheets.Status;
 
 namespace NamePlateDebuffs;
 
 public unsafe class AddonNamePlateHooks : IDisposable
 {
-    const int MaxStatusesPerGameObject = 30;
+    private ExcelSheet<StatusSheet> StatusSheet;
+
+    private const int MaxTestStatuses = 30 * 3;
     private readonly NamePlateDebuffsPlugin _plugin;
     private readonly Stopwatch _lastUpdateTimer;
 
     public AddonNamePlateHooks(NamePlateDebuffsPlugin p)
     {
+        StatusSheet = Service.DataManager.GetExcelSheet<StatusSheet>()!;
+
         _plugin = p;
 
         _lastUpdateTimer = new Stopwatch();
@@ -87,15 +96,21 @@ public unsafe class AddonNamePlateHooks : IDisposable
         }
     }
 
-    private void UpdateNamePlate(UI3DModule.ObjectInfo* objectInfo, bool isTarget)
+    private void UpdateNamePlate(ObjectInfo* objectInfo, bool isTarget)
     {
         var npIndex = objectInfo->NamePlateIndex;
         // Disable depth priority for target's nameplate so it shows up in front of walls and other nameplates.
         _plugin.StatusNodeManager.SetDepthPriority(npIndex, !isTarget);
 
         NameplateKind kind = (NameplateKind)objectInfo->NamePlateObjectKind;
+        bool nameplateIsLocalPlayer = objectInfo->GameObject->GetGameObjectId() == Service.ObjectTable.LocalPlayer?.GameObjectId;
+        if (nameplateIsLocalPlayer)
+        {
+            kind = NameplateKind.LocalPlayer;
+        }
         switch (kind)
         {
+            case NameplateKind.LocalPlayer:
             case NameplateKind.Player:
             case NameplateKind.Enemy:
                 _plugin.StatusNodeManager.ShowGroup(npIndex);
@@ -105,33 +120,120 @@ public unsafe class AddonNamePlateHooks : IDisposable
                 return;
         }
 
-        if (_plugin.ConfigWindow.IsOpen)
+        foreach (var status in GetStatuses(objectInfo))
         {
-            _plugin.StatusNodeManager.ForEachNodeInGroup(npIndex, node => node.SetStatus(StatusNode.StatusNode.DefaultDebuffId, 1 + npIndex));
-            return;
-        }
-
-        ulong? localPlayerId = Service.ObjectTable.LocalPlayer?.GameObjectId;
-        if (localPlayerId is not null)
-        {
-            bool nameplateIsLocalPlayer = objectInfo->GameObject->GetGameObjectId() == localPlayerId;
-            StatusManager* targetStatus = ((BattleChara*)objectInfo->GameObject)->GetStatusManager();
-
-            var statusArray = targetStatus->Status;
-
-            for (int j = 0; j < MaxStatusesPerGameObject; j++)
+            if (!ShouldShowStatus(kind, status))
             {
-                Status status = statusArray[j];
-                if (status.StatusId == 0) continue;
+                continue;
+            }
 
-                bool sourceIsLocalPlayer = status.SourceObject.ObjectId == localPlayerId;
-                if (!_plugin.StatusNodeManager.AddStatus(npIndex, kind, status, sourceIsLocalPlayer, nameplateIsLocalPlayer))
-                {
-                    break;
-                }
+            if (!_plugin.StatusNodeManager.AddStatus(npIndex, kind, status))
+            {
+                break;
             }
         }
         _plugin.StatusNodeManager.HideUnusedNodes(npIndex);
+    }
+
+    private bool ShouldShowStatus(NameplateKind kind, NpdStatus status)
+    {
+        if (kind == NameplateKind.Enemy)
+        {
+            return _plugin.Config.ShowSelfDebuffsOnEnemies && status.SourceIsLocalPlayer && status.Info.Category is StatusCategory.Detrimental;
+        }
+
+        var visConfig = GetVisConfig(kind, status);
+        if (!visConfig.Enabled) return false;
+
+        var isTooLong = visConfig.MaxTimeSeconds > 0 && (status.SecondsRemaining > visConfig.MaxTimeSeconds || status.Info.IsPermanent);
+        if (isTooLong) return false;
+
+        return true;
+    }
+
+    private StatusVisibilityConfig GetVisConfig(NameplateKind kind, NpdStatus status)
+    {
+        var cfg = _plugin.Config;
+        bool srcSelf = status.SourceIsLocalPlayer;
+        return (kind, status.Info.Category) switch
+        {
+            (NameplateKind.LocalPlayer, StatusCategory.Detrimental) => cfg.DebuffsOnSelf,
+            (NameplateKind.LocalPlayer, StatusCategory.Beneficial)  => srcSelf ? cfg.YourBuffsOnSelf  : cfg.AllyBuffsOnSelf,
+            (NameplateKind.LocalPlayer, StatusCategory.Special)     => cfg.SpecialOnSelf,
+            (NameplateKind.Player,      StatusCategory.Detrimental) => cfg.DebuffsOnAllies,
+            (NameplateKind.Player,      StatusCategory.Beneficial)  => srcSelf ? cfg.YourBuffsOnAllies : cfg.AllyBuffsOnAllies,
+            (NameplateKind.Player,      StatusCategory.Special)     => cfg.SpecialOnAllies,
+            _ => default,
+        };
+    }
+
+    private IEnumerable<NpdStatus> GetStatuses(ObjectInfo* objectInfo)
+    {
+        var npIndex = objectInfo->NamePlateIndex;
+        if (_plugin.ConfigWindow.IsOpen && _plugin.ShowTestStatuses)
+        {
+            return GetTestStatuses(npIndex);
+        }
+        var statuses = GetRealStatuses(objectInfo);
+        if (_plugin.Config.ShowMoodles)
+        {
+            statuses.AddRange(GetMoodleStatuses(objectInfo));
+        }
+        if (!_plugin.Config.FillFromRight)
+        {
+            statuses.Reverse();
+        }
+        statuses.Sort((x, y) => x.Info.Priority.CompareTo(y.Info.Priority));
+
+        return statuses;
+    }
+
+    private IEnumerable<NpdStatus> GetTestStatuses(int npIndex)
+    {
+        var localPlayerId = (uint)(Service.ObjectTable.LocalPlayer?.GameObjectId ?? 0);
+        for (int i = 0; i < MaxTestStatuses; i++)
+        {
+            var sourceObjectId = i % 2 == 0 ? 0 : localPlayerId;
+            yield return new()
+            {
+                Info = (i % 3) switch
+                {
+                    0 => NpdStatusInfo.Debuff,
+                    1 => NpdStatusInfo.Buff,
+                    _ => NpdStatusInfo.Special,
+                },
+                SecondsRemaining = npIndex + 1,
+                SourceObjectId = sourceObjectId,
+            };
+        }
+    }
+
+    private List<NpdStatus> GetRealStatuses(ObjectInfo* objectInfo)
+    {
+        List<NpdStatus> statuses = new();
+        StatusManager* targetStatus = ((BattleChara*)objectInfo->GameObject)->GetStatusManager();
+        var statusArray = targetStatus->Status;
+
+        for (int j = 0; j < statusArray.Length; j++)
+        {
+            Status status = statusArray[j];
+            if (status.StatusId == 0) continue;
+            StatusInfo info = StatusSheet.GetRow(status.StatusId);
+            if (info.Icon == 0) continue;
+            statuses.Add(new()
+            {
+                Info = NpdStatusInfo.Of(info),
+                SecondsRemaining = info.IsPermanent ? -1 : status.RemainingTime,
+                SourceObjectId = status.SourceObject.ObjectId,
+                Stacks = info.MaxStacks > 0 ? (uint)(0xFF & status.Param) : 1,
+            });
+        }
+        return statuses;
+    }
+
+    private IEnumerable<NpdStatus> GetMoodleStatuses(ObjectInfo* objectInfo)
+    {
+        return _plugin.MoodlesManager.GetMoodleStatuses((nint)objectInfo->GameObject, objectInfo->GameObject->GetGameObjectId());
     }
 
     public void PreFinalizeHandler(AddonEvent type, AddonArgs args)
