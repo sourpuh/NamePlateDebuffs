@@ -1,54 +1,29 @@
 using Dalamud.Plugin;
 using Dalamud.Plugin.Ipc;
-using Newtonsoft.Json.Linq;
+using MemoryPack;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-
-using MoodleKey = (ulong ObjId, System.Guid Guid);
-using MoodlesStatusInfo = (
-    int Version,
-    System.Guid Guid,
-    int IconId,
-    string Title,
-    string Description,
-    string CustomVFXPath,
-    long ExpireTicks,
-    int Type,
-    int Stacks,
-    int StackSteps,
-    uint Modifiers,
-    System.Guid ChainedStatus,
-    int ChainTrigger,
-    string Applier,
-    string Dispeller,
-    bool Permanent
-);
 
 namespace NamePlateDebuffs;
 
 public sealed class MoodlesManager
 {
-    private readonly record struct Snapshot(long FirstSeenAt, long DurationMs);
-
     private const string VersionName = "Moodles.Version";
-    private const string GetByPtrName = "Moodles.GetStatusManagerInfoByPtrV2";
+
+    private const string GetByPtrName = "Moodles.GetStatusManagerByPtrV2";
     private const int MinimumVersion = 4;
+    private static readonly MemoryPackSerializerOptions SerializerOptions = new()
+    {
+        StringEncoding = StringEncoding.Utf16,
+    };
 
     private readonly ICallGateSubscriber<int> _version;
-    private readonly ICallGateSubscriber<nint, object> _getByPtr;
-
-    private readonly Dictionary<MoodleKey, Snapshot> _snapshots = new();
-    private readonly HashSet<MoodleKey> _staleKeys = new();
-
-    // Moodles expire time float to int uses ceiling() while the game UI uses round().
-    // Half a second bias to undo the ceiling effect.
-    private const long ExpireBiasMs = 500;
+    private readonly ICallGateSubscriber<nint, string> _getByPtr;
 
     public MoodlesManager(IDalamudPluginInterface pi)
     {
         _version = pi.GetIpcSubscriber<int>(VersionName);
-        _getByPtr = pi.GetIpcSubscriber<nint, object>(GetByPtrName);
+        _getByPtr = pi.GetIpcSubscriber<nint, string>(GetByPtrName);
     }
 
     public bool Available
@@ -65,78 +40,59 @@ public sealed class MoodlesManager
         var results = new List<NpdStatus>();
         if (charaPtr == 0) return results;
 
-        IList? list;
-        try { list = _getByPtr.InvokeFunc(charaPtr) as IList; }
-        catch { return results; }
-        if (list is null) return results;
-
-        _staleKeys.Clear();
-        foreach (var key in _snapshots.Keys)
-            if (key.ObjId == objId) _staleKeys.Add(key);
-
-        foreach (var item in list)
+        string data;
+        try
         {
-            if (item is not JObject jo) continue;
-            if (!TryParse(jo, out var entry)) continue;
-            _staleKeys.Remove((objId, entry.Guid));
-            results.Add(ToStatus(entry, RemainingSeconds(objId, entry)));
+            data = _getByPtr.InvokeFunc(charaPtr);
         }
+        catch
+        {
+            return results;
+        }
+        if (string.IsNullOrEmpty(data)) return results;
 
-        foreach (var key in _staleKeys) _snapshots.Remove(key);
+        List<MoodlesStatus>? statuses;
+        try
+        {
+            statuses = MemoryPackSerializer.Deserialize<List<MoodlesStatus>>(Convert.FromBase64String(data), SerializerOptions);
+        }
+        catch
+        {
+            return results;
+        }
+        if (statuses is null) return results;
+        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        foreach (var status in statuses)
+        {
+            if (status is null || status.IconID <= 0) continue;
+            results.Add(ToStatus(status, now));
+        }
         return results;
     }
 
-    public static NpdStatus ToStatus(MoodleEntry entry, float secondsRemaining)
+    private static NpdStatus ToStatus(MoodlesStatus status, long now)
     {
+        uint sourceObjectId = 0;
+
+        var lp = Service.ObjectTable.LocalPlayer;
+        var lpName = lp?.Name.ToString() + "@" + lp?.HomeWorld.ValueNullable?.Name.ToString();
+        if (lpName == status.Applier)
+        {
+            sourceObjectId = (uint) lp!.GameObjectId;
+        }
+
         return new()
         {
             Info = new NpdStatusInfo
             {
-                IconId = entry.BaseIconId,
-                Category = entry.Category,
-                IsPermanent = entry.IsPermanent,
+                IconId = (uint)status.IconID,
+                Category = (StatusCategory)(status.Type + 1),
+                IsPermanent = status.IsPermanent,
                 Priority = int.MinValue,
             },
-            Stacks = (uint)entry.Stacks,
-            SecondsRemaining = secondsRemaining,
+            Stacks = (uint)Math.Max(1, status.Stacks),
+            SecondsRemaining = status.IsPermanent ? -1 : MathF.Max(0, (status.ExpiresAt - now) / 1000f),
+            SourceObjectId = sourceObjectId,
         };
     }
-
-    private float RemainingSeconds(ulong objId, MoodleEntry entry)
-    {
-        if (entry.IsPermanent) return -1;
-
-        var key = (objId, entry.Guid);
-        long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-
-        if (_snapshots.TryGetValue(key, out var snapshot))
-        {
-            long endAt = snapshot.FirstSeenAt + snapshot.DurationMs;
-            if (endAt > now) return (endAt - now + ExpireBiasMs) / 1000f;
-        }
-
-        // Snapshot expired but the moodle is still in the IPC list.
-        // Moodles refreshed it without us seeing a gap. Restart the timer.
-        _snapshots[key] = new Snapshot(now, entry.ExpireTicksMs);
-        return (entry.ExpireTicksMs + ExpireBiasMs) / 1000f;
-    }
-
-    private static bool TryParse(JObject jo, out MoodleEntry entry)
-    {
-        entry = default;
-        try
-        {
-            var t = jo.ToObject<MoodlesStatusInfo>();
-            if (t.IconId <= 0) return false;
-            entry = new MoodleEntry(t.Guid, (uint)t.IconId, Math.Max(1, t.Stacks), t.Type, t.ExpireTicks);
-            return true;
-        }
-        catch { return false; }
-    }
-}
-
-public readonly record struct MoodleEntry(Guid Guid, uint BaseIconId, int Stacks, int StatusType, long ExpireTicksMs)
-{
-    public StatusCategory Category => (StatusCategory)(StatusType + 1);
-    public bool IsPermanent => ExpireTicksMs == -1;
 }

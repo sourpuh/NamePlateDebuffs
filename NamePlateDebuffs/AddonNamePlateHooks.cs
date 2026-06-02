@@ -1,5 +1,6 @@
 ﻿using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
+using Dalamud.Game.ClientState.Conditions;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
@@ -175,7 +176,7 @@ public unsafe class AddonNamePlateHooks : IDisposable
             return GetTestStatuses(npIndex);
         }
         var statuses = GetRealStatuses(objectInfo);
-        if (_plugin.Config.ShowMoodles)
+        if (ShowMoodles())
         {
             statuses.AddRange(GetMoodleStatuses(objectInfo));
         }
@@ -234,6 +235,21 @@ public unsafe class AddonNamePlateHooks : IDisposable
     private IEnumerable<NpdStatus> GetMoodleStatuses(ObjectInfo* objectInfo)
     {
         return _plugin.MoodlesManager.GetMoodleStatuses((nint)objectInfo->GameObject, objectInfo->GameObject->GetGameObjectId());
+    }
+
+    private bool ShowMoodles()
+    {
+        var cfg = _plugin.Config;
+        if (!_plugin.Config.ShowMoodles)
+            return false;
+        if (cfg.HideMoodlesInDuty
+            && (Service.Condition[ConditionFlag.BoundByDuty]
+                || Service.Condition[ConditionFlag.BoundByDuty56]
+                || Service.ClientState.IsPvP))
+            return false;
+        if (cfg.HideMoodlesInCombat && Service.Condition[ConditionFlag.InCombat])
+            return false;
+        return true;
     }
 
     public void PreFinalizeHandler(AddonEvent type, AddonArgs args)

@@ -3,7 +3,7 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
     <PackageId>NamePlateDebuffs</PackageId>
-    <Version>1.1.1.0</Version>
+    <Version>1.1.1.1</Version>
     <Authors>aers, JHerig, squidmade, sourpuh</Authors>
     <PackageProjectUrl>https://github.com/sourpuh/NamePlateDebuffs</PackageProjectUrl>
   </PropertyGroup>
@@ -22,6 +22,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Optimize>True</Optimize>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MemoryPack" Version="1.21.4" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="NamePlateDebuffs.json">

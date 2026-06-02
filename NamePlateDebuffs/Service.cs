@@ -8,6 +8,7 @@ public class Service
 {
     [PluginService] public static IDalamudPluginInterface Interface { get; private set; } = null!;
     [PluginService] public static IClientState ClientState { get; private set; } = null!;
+    [PluginService] public static ICondition Condition { get; private set; } = null!;
     [PluginService] public static IObjectTable ObjectTable { get; private set; } = null!;
     [PluginService] public static ICommandManager CommandManager { get; private set; } = null!;
     [PluginService] public static IDataManager DataManager { get; private set; } = null!;

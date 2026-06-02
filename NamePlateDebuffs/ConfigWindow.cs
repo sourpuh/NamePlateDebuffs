@@ -34,6 +34,18 @@ public class ConfigWindow : Window, IDisposable
             needSave |= ImGui.Checkbox("Show Moodles", ref _plugin.Config.ShowMoodles);
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Show statuses from the Moodles plugin. Positive Moodle statuses show as Ally Buffs.");
+            if (_plugin.Config.ShowMoodles)
+            {
+                using (ImRaii.PushIndent())
+                {
+                    needSave |= ImGui.Checkbox("Disable Moodles whilst Bound to Duty", ref _plugin.Config.HideMoodlesInDuty);
+                    if (ImGui.IsItemHovered())
+                        ImGui.SetTooltip("Hide Moodles while you are bound by a duty or in PvP.");
+                    needSave |= ImGui.Checkbox("Disable Moodles whilst in combat", ref _plugin.Config.HideMoodlesInCombat);
+                    if (ImGui.IsItemHovered())
+                        ImGui.SetTooltip("Hide Moodles while you are in combat.");
+                }
+            }
         }
         if (ImGui.CollapsingHeader("Status", ImGuiTreeNodeFlags.DefaultOpen))
         {

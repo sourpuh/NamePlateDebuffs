@@ -15,6 +15,8 @@ public class NamePlateDebuffsPluginConfig : IPluginConfiguration
     // General
     public bool Enabled = true;
     public bool ShowMoodles;
+    public bool HideMoodlesInDuty;
+    public bool HideMoodlesInCombat;
     public bool ShowSelfDebuffsOnEnemies;
     public StatusVisibilityConfig DebuffsOnSelf;
     public StatusVisibilityConfig YourBuffsOnSelf;
@@ -64,6 +66,8 @@ public class NamePlateDebuffsPluginConfig : IPluginConfiguration
     public void SetGeneralToDefaults()
     {
         ShowSelfDebuffsOnEnemies = true;
+        HideMoodlesInDuty = true;
+        HideMoodlesInCombat = true;
         DebuffsOnSelf = new() { MaxTimeSeconds = DefaultTimeHideThreshold };
         YourBuffsOnSelf = new() { MaxTimeSeconds = DefaultTimeHideThreshold };
         AllyBuffsOnSelf = new() { MaxTimeSeconds = DefaultTimeHideThreshold };
