@@ -223,7 +223,7 @@ public unsafe class AddonNamePlateHooks : IDisposable
             statuses.Add(new()
             {
                 Info = NpdStatusInfo.Of(info),
-                SecondsRemaining = info.IsPermanent ? -1 : status.RemainingTime,
+                SecondsRemaining = info.IsPermanent ? 0 : status.RemainingTime,
                 SourceObjectId = status.SourceObject.ObjectId,
                 Stacks = info.MaxStacks > 0 ? (uint)(0xFF & status.Param) : 1,
             });
