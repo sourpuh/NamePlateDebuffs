@@ -155,11 +155,12 @@ public class ConfigWindow : Window, IDisposable
 
     private static void DrawStatusVisibilityGroup(string suffix, ref StatusVisibilityConfig debuffs, ref StatusVisibilityConfig yourBuffs, ref StatusVisibilityConfig allyBuffs, ref StatusVisibilityConfig special, ref bool needSave)
     {
-        if (!ImGui.BeginTable($"vis_{suffix}", 2, ImGuiTableFlags.SizingStretchProp))
+        if (!ImGui.BeginTable($"vis_{suffix}", 3, ImGuiTableFlags.SizingStretchProp))
             return;
 
         ImGui.TableSetupColumn("##type", ImGuiTableColumnFlags.WidthFixed);
-        ImGui.TableSetupColumn("##max", ImGuiTableColumnFlags.WidthStretch);
+        ImGui.TableSetupColumn("##max", ImGuiTableColumnFlags.WidthFixed);
+        ImGui.TableSetupColumn("##permanent", ImGuiTableColumnFlags.WidthStretch);
 
         DrawStatusVisibilityRow($"Debuffs##{suffix}", ref debuffs, ref needSave);
         DrawStatusVisibilityRow($"Your Buffs##{suffix}", ref yourBuffs, ref needSave);
@@ -186,5 +187,7 @@ public class ConfigWindow : Window, IDisposable
         {
             ImGui.SetTooltip("Only show statuses with time remaining less than this; 0 shows all.");
         }
+        ImGui.TableNextColumn();
+        needSave |= ImGui.Checkbox("Hide Permanent", ref vis.HidePermanent);
     }
 }

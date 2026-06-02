@@ -145,9 +145,8 @@ public unsafe class AddonNamePlateHooks : IDisposable
 
         var visConfig = GetVisConfig(kind, status);
         if (!visConfig.Enabled) return false;
-
-        var isTooLong = visConfig.MaxTimeSeconds > 0 && (status.SecondsRemaining > visConfig.MaxTimeSeconds || status.Info.IsPermanent);
-        if (isTooLong) return false;
+        if (visConfig.MaxTimeSeconds > 0 && status.SecondsRemaining > visConfig.MaxTimeSeconds) return false;
+        if (visConfig.HidePermanent && status.Info.IsPermanent) return false;
 
         return true;
     }

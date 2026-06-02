@@ -29,7 +29,7 @@ public class NamePlateDebuffsPluginConfig : IPluginConfiguration
     public int UpdateIntervalMillis;
 
     // Obsolete config migration
-    [JsonProperty][Obsolete] public bool HidePermanentStatuses { set => DebuffsOnSelf.MaxTimeSeconds = DebuffsOnAllies.MaxTimeSeconds = 3600; }
+    [JsonProperty][Obsolete] public bool HidePermanentStatuses { set => DebuffsOnSelf.HidePermanent = DebuffsOnAllies.HidePermanent = value; }
     [JsonProperty][Obsolete] public bool ShowDebuffsOnSelf { set => DebuffsOnSelf.Enabled = value; }
     [JsonProperty][Obsolete] public bool ShowDebuffsOnOthers { set => DebuffsOnAllies.Enabled = value; }
     [JsonProperty][Obsolete] public int GroupX { set => GroupOffset.X = value; }
@@ -68,13 +68,13 @@ public class NamePlateDebuffsPluginConfig : IPluginConfiguration
         ShowSelfDebuffsOnEnemies = true;
         HideMoodlesInDuty = true;
         HideMoodlesInCombat = true;
-        DebuffsOnSelf = new() { MaxTimeSeconds = DefaultTimeHideThreshold };
-        YourBuffsOnSelf = new() { MaxTimeSeconds = DefaultTimeHideThreshold };
-        AllyBuffsOnSelf = new() { MaxTimeSeconds = DefaultTimeHideThreshold };
+        DebuffsOnSelf = new() { MaxTimeSeconds = DefaultTimeHideThreshold, HidePermanent = true };
+        YourBuffsOnSelf = new() { MaxTimeSeconds = DefaultTimeHideThreshold, HidePermanent = true };
+        AllyBuffsOnSelf = new() { MaxTimeSeconds = DefaultTimeHideThreshold, HidePermanent = true };
         SpecialOnSelf = new();
-        DebuffsOnAllies = new() { MaxTimeSeconds = DefaultTimeHideThreshold };
-        YourBuffsOnAllies = new() { MaxTimeSeconds = DefaultTimeHideThreshold };
-        AllyBuffsOnAllies = new() { MaxTimeSeconds = DefaultTimeHideThreshold };
+        DebuffsOnAllies = new() { MaxTimeSeconds = DefaultTimeHideThreshold, HidePermanent = true };
+        YourBuffsOnAllies = new() { MaxTimeSeconds = DefaultTimeHideThreshold, HidePermanent = true };
+        AllyBuffsOnAllies = new() { MaxTimeSeconds = DefaultTimeHideThreshold, HidePermanent = true };
         SpecialOnAllies = new();
         UpdateIntervalMillis = 100;
     }
