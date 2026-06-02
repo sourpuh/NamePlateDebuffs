@@ -1,6 +1,5 @@
 using Dalamud.Plugin;
 using Dalamud.Plugin.Ipc;
-using MemoryPack;
 using System;
 using System.Collections.Generic;
 
@@ -12,10 +11,6 @@ public sealed class MoodlesManager
 
     private const string GetByPtrName = "Moodles.GetStatusManagerByPtrV2";
     private const int MinimumVersion = 4;
-    private static readonly MemoryPackSerializerOptions SerializerOptions = new()
-    {
-        StringEncoding = StringEncoding.Utf16,
-    };
 
     private readonly ICallGateSubscriber<int> _version;
     private readonly ICallGateSubscriber<nint, string> _getByPtr;
@@ -51,20 +46,19 @@ public sealed class MoodlesManager
         }
         if (string.IsNullOrEmpty(data)) return results;
 
-        List<MoodlesStatus>? statuses;
+        List<MoodlesStatus> statuses;
         try
         {
-            statuses = MemoryPackSerializer.Deserialize<List<MoodlesStatus>>(Convert.FromBase64String(data), SerializerOptions);
+            statuses = MoodlesStatusReader.Parse(Convert.FromBase64String(data));
         }
         catch
         {
             return results;
         }
-        if (statuses is null) return results;
         long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         foreach (var status in statuses)
         {
-            if (status is null || status.IconID <= 0) continue;
+            if (status.IconID <= 0) continue;
             results.Add(ToStatus(status, now));
         }
         return results;
