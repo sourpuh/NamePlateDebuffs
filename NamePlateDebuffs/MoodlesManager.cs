@@ -91,7 +91,7 @@ public sealed class MoodlesManager
                 Priority = int.MinValue,
             },
             Stacks = (uint)Math.Max(1, status.Stacks),
-            SecondsRemaining = status.IsPermanent ? -1 : MathF.Max(0, (status.ExpiresAt - now) / 1000f),
+            SecondsRemaining = status.IsPermanent ? 0 : MathF.Max(0, (status.ExpiresAt - now) / 1000f),
             SourceObjectId = sourceObjectId,
         };
     }
