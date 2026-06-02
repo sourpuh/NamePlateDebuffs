@@ -188,6 +188,6 @@ public class ConfigWindow : Window, IDisposable
             ImGui.SetTooltip("Only show statuses with time remaining less than this; 0 shows all.");
         }
         ImGui.TableNextColumn();
-        needSave |= ImGui.Checkbox("Hide Permanent", ref vis.HidePermanent);
+        needSave |= ImGui.Checkbox($"Hide Permanent##{label}", ref vis.HidePermanent);
     }
 }
