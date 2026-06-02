@@ -36,18 +36,17 @@ public unsafe class StatusNode
         }
 
         string timeString;
-        if (secondsRemaining > 120)
+        if (secondsRemaining > 86400)
         {
-            if (secondsRemaining > 3600)
-            {
-                secondsRemaining /= 3600;
-                timeString = secondsRemaining + "h";
-            }
-            else
-            {
-                secondsRemaining /= 60;
-                timeString = secondsRemaining + ""; // tiny 'm' unicode
-            }
+            timeString = secondsRemaining / 86400 + "d";
+        }
+        else if (secondsRemaining > 3600)
+        {
+            timeString = secondsRemaining / 3600 + "h";
+        }
+        else if (secondsRemaining > 120)
+        {
+            timeString = secondsRemaining / 60 + ""; // tiny 'm' unicode
         }
         else
         {

@@ -14,6 +14,6 @@ public readonly record struct NpdStatus
     internal uint Stacks { get; init; } = 1;
 
     public uint IconId => Info.IconId + Stacks - 1;
-    public int RoundedSecondsRemaining => (int)MathF.Round(SecondsRemaining);
+    public int RoundedSecondsRemaining => (int)MathF.Abs(MathF.Round(SecondsRemaining));
     public bool SourceIsLocalPlayer => SourceObjectId == Service.ObjectTable.LocalPlayer?.GameObjectId;
 }
